@@ -4,7 +4,6 @@ export interface MemberResponse {
   email: string;
   status: string;
   track: string;
-  team: string;
   payment_status: string;
 }
 

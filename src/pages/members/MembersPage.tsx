@@ -178,7 +178,6 @@ export function MembersPage() {
               <TableHead>이메일</TableHead>
               <TableHead>트랙</TableHead>
               <TableHead>상태</TableHead>
-              <TableHead>팀</TableHead>
               <TableHead>납부</TableHead>
             </TableRow>
           </TableHeader>
@@ -186,7 +185,7 @@ export function MembersPage() {
             {isLoading
               ? Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    {Array.from({ length: 6 }).map((_, j) => (
+                    {Array.from({ length: 5 }).map((_, j) => (
                       <TableCell key={j}>
                         <Skeleton className="h-4 w-20" />
                       </TableCell>
@@ -207,7 +206,6 @@ export function MembersPage() {
                         {member.status}
                       </Badge>
                     </TableCell>
-                    <TableCell>{member.team || "-"}</TableCell>
                     <TableCell>
                       <Badge variant={paymentVariant(member.payment_status)}>
                         {member.payment_status}
@@ -217,7 +215,7 @@ export function MembersPage() {
                 ))}
             {!isLoading && data?.items.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
                   검색 결과가 없습니다.
                 </TableCell>
               </TableRow>

@@ -76,8 +76,6 @@ export function MemberDetailPage() {
             <Separator />
             <DetailRow label="트랙">{member.track}</DetailRow>
             <Separator />
-            <DetailRow label="팀">{member.team || "-"}</DetailRow>
-            <Separator />
             <DetailRow label="납부 상태">
               <Badge
                 variant={

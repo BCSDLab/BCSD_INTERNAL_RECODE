@@ -1,5 +1,6 @@
 import { GoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -41,12 +42,19 @@ export function LoginPage() {
         <CardDescription>내부 관리 시스템</CardDescription>
       </CardHeader>
       <CardContent className="flex justify-center">
-        <GoogleLogin
-          onSuccess={handleGoogleSuccess}
-          onError={() => login.reset()}
-          size="large"
-          width="300"
-        />
+        {login.isPending ? (
+          <div className="flex items-center gap-2 py-2 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            로그인 중...
+          </div>
+        ) : (
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => login.reset()}
+            size="large"
+            width="300"
+          />
+        )}
       </CardContent>
       {login.isError && (
         <CardFooter>

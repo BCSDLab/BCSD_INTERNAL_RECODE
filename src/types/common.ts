@@ -19,7 +19,6 @@ export interface FilterOptions {
 export interface MemberFilterParams {
   status?: string;
   track?: string;
-  team?: string;
   payment_status?: string;
   name?: string;
   page: number;
