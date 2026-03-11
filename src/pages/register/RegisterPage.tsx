@@ -20,6 +20,8 @@ interface WizardState {
   googleToken: string;
   googleName: string;
   name: string;
+  department: string;
+  studentId: string;
   phone: string;
   schoolEmail: string;
   track: string;
@@ -27,7 +29,7 @@ interface WizardState {
 
 type WizardAction =
   | { type: "SET_GOOGLE"; googleToken: string; googleName: string }
-  | { type: "SET_PROFILE"; name: string; phone: string }
+  | { type: "SET_PROFILE"; name: string; department: string; studentId: string; phone: string }
   | { type: "SET_EMAIL"; schoolEmail: string }
   | { type: "SET_TRACK"; track: string }
   | { type: "GO_BACK" };
@@ -53,7 +55,7 @@ function reducer(state: WizardState, action: WizardAction): WizardState {
         googleName: action.googleName,
       };
     case "SET_PROFILE":
-      return { ...state, step: 3, name: action.name, phone: action.phone };
+      return { ...state, step: 3, name: action.name, department: action.department, studentId: action.studentId, phone: action.phone };
     case "SET_EMAIL":
       return { ...state, step: 4, schoolEmail: action.schoolEmail };
     case "SET_TRACK":
@@ -75,6 +77,8 @@ export function RegisterPage() {
       ? decodeGoogleName(initialGoogleToken)
       : "",
     name: "",
+    department: "",
+    studentId: "",
     phone: "",
     schoolEmail: "",
     track: "",
@@ -87,6 +91,8 @@ export function RegisterPage() {
     register.mutate({
       google_token: state.googleToken,
       name: state.name,
+      department: state.department,
+      student_id: state.studentId,
       school_email: state.schoolEmail,
       phone: state.phone,
       track,
@@ -114,8 +120,8 @@ export function RegisterPage() {
           <ProfileStep
             defaultName={state.name || state.googleName}
             onBack={() => dispatch({ type: "GO_BACK" })}
-            onComplete={(name, phone) =>
-              dispatch({ type: "SET_PROFILE", name, phone })
+            onComplete={(name, department, studentId, phone) =>
+              dispatch({ type: "SET_PROFILE", name, department, studentId, phone })
             }
           />
         )}

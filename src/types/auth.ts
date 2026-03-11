@@ -28,6 +28,8 @@ export interface ConfirmEmailResponse {
 export interface RegisterRequest {
   google_token: string;
   name: string;
+  department: string;
+  student_id: string;
   school_email: string;
   phone: string;
   track: string;

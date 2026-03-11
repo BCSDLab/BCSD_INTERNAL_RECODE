@@ -29,16 +29,19 @@ export function MemberDetailPage() {
 
   if (isLoading) {
     return (
-      <Card className="max-w-2xl">
-        <CardHeader>
-          <Skeleton className="h-6 w-40" />
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <Skeleton key={i} className="h-4 w-full" />
-          ))}
-        </CardContent>
-      </Card>
+      <div className="mx-auto max-w-2xl space-y-4">
+        <Skeleton className="h-8 w-20" />
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-40" />
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <Skeleton key={i} className="h-4 w-full" />
+            ))}
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
@@ -51,13 +54,13 @@ export function MemberDetailPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
+    <div className="mx-auto max-w-2xl space-y-4">
+      <Button variant="ghost" size="sm" onClick={() => navigate("/members")}>
         <ArrowLeft className="mr-1 h-4 w-4" />
         목록으로
       </Button>
 
-      <Card className="max-w-2xl">
+      <Card>
         <CardHeader>
           <div className="flex items-center gap-3">
             <CardTitle>{member.name}</CardTitle>
@@ -71,6 +74,10 @@ export function MemberDetailPage() {
             <DetailRow label="이메일">{member.email}</DetailRow>
             <Separator />
             <DetailRow label="학교 이메일">{member.school_email}</DetailRow>
+            <Separator />
+            <DetailRow label="학부(학과)">{member.department}</DetailRow>
+            <Separator />
+            <DetailRow label="학번">{member.student_id}</DetailRow>
             <Separator />
             <DetailRow label="전화번호">{member.phone}</DetailRow>
             <Separator />
