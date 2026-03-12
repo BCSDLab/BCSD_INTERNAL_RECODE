@@ -35,7 +35,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: BCSDLab/bcsdlab-credentials
-          ssh-key: ${{ secrets.CONFIG_REPO_PEM_KEY }}
+          ssh-key: ${{ secrets.CREDENTIALS_REPO_PEM_KEY }}
           path: credentials
           persist-credentials: false
 
