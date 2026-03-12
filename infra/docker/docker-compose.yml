@@ -1,0 +1,22 @@
+services:
+  frontend:
+    build:
+      context: ../..
+      dockerfile: infra/docker/Dockerfile
+      args:
+        VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID}
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT}:8080"
+    stop_grace_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+    networks:
+      - bcsd
+
+networks:
+  bcsd:
+    external: true
