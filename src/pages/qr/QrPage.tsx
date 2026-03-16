@@ -4,9 +4,8 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Download, Copy } from "lucide-react";
+import { Download, Copy, QrCode } from "lucide-react";
 import { toast } from "sonner";
-import { useDebounce } from "@/hooks/use-debounce";
 import { useQrPreview } from "@/hooks/use-qr";
 import type { QrParams } from "@/types/qr";
 
@@ -14,14 +13,12 @@ export function QrPage() {
   const [text, setText] = useState("");
   const [format, setFormat] = useState<"png" | "svg">("png");
   const [size, setSize] = useState(300);
+  const [submittedParams, setSubmittedParams] = useState<QrParams | null>(null);
 
-  const debouncedText = useDebounce(text, 500);
   const textTooLong = text.length > 2000;
+  const canGenerate = text.trim().length > 0 && !textTooLong;
 
-  const params: QrParams | null =
-    debouncedText && !textTooLong ? { text: debouncedText, format, size } : null;
-
-  const { data, isLoading, isError } = useQrPreview(params);
+  const { data, isLoading, isError } = useQrPreview(submittedParams);
 
   const objectUrl = useMemo(
     () => (data ? URL.createObjectURL(data) : null),
@@ -39,6 +36,11 @@ export function QrPage() {
       toast.error("QR 코드 생성에 실패했습니다.");
     }
   }, [isError]);
+
+  const handleGenerate = () => {
+    if (!canGenerate) return;
+    setSubmittedParams({ text: text.trim(), format, size });
+  };
 
   const handleDownload = () => {
     if (!objectUrl) return;
@@ -134,6 +136,15 @@ export function QrPage() {
             />
           </div>
         </div>
+
+        <Button
+          onClick={handleGenerate}
+          disabled={!canGenerate || isLoading}
+          className="w-full"
+        >
+          <QrCode className="mr-1 h-4 w-4" />
+          {isLoading ? "생성 중..." : "QR 코드 생성"}
+        </Button>
 
         {(isLoading || objectUrl) && (
           <div className="flex flex-col items-center gap-4 rounded-lg border bg-muted/30 p-6">
