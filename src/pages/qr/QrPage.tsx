@@ -1,66 +1,64 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState } from "react";
+import QRCode from "qrcode";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Download, Copy, QrCode } from "lucide-react";
 import { toast } from "sonner";
-import { useQrPreview } from "@/hooks/use-qr";
-import type { QrParams } from "@/types/qr";
+
+type Format = "png" | "svg";
 
 export function QrPage() {
   const [text, setText] = useState("");
-  const [format, setFormat] = useState<"png" | "svg">("png");
+  const [format, setFormat] = useState<Format>("png");
   const [size, setSize] = useState(300);
-  const [submittedParams, setSubmittedParams] = useState<QrParams | null>(null);
+  const [result, setResult] = useState<{ dataUrl: string; format: Format; blob: Blob } | null>(null);
+  const [generating, setGenerating] = useState(false);
 
   const textTooLong = text.length > 2000;
   const canGenerate = text.trim().length > 0 && !textTooLong;
 
-  const { data, isLoading, isError } = useQrPreview(submittedParams);
-
-  const objectUrl = useMemo(
-    () => (data ? URL.createObjectURL(data) : null),
-    [data],
-  );
-
-  useEffect(() => {
-    return () => {
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
-    };
-  }, [objectUrl]);
-
-  useEffect(() => {
-    if (isError) {
-      toast.error("QR 코드 생성에 실패했습니다.");
-    }
-  }, [isError]);
-
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!canGenerate) return;
-    setSubmittedParams({ text: text.trim(), format, size });
+    setGenerating(true);
+    try {
+      if (format === "png") {
+        const dataUrl = await QRCode.toDataURL(text.trim(), { width: size, margin: 2 });
+        const res = await fetch(dataUrl);
+        const blob = await res.blob();
+        setResult({ dataUrl, format, blob });
+      } else {
+        const svgString = await QRCode.toString(text.trim(), { type: "svg", width: size, margin: 2 });
+        const blob = new Blob([svgString], { type: "image/svg+xml" });
+        const dataUrl = URL.createObjectURL(blob);
+        setResult({ dataUrl, format, blob });
+      }
+    } catch {
+      toast.error("QR 코드 생성에 실패했습니다.");
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const handleDownload = () => {
-    if (!objectUrl) return;
+    if (!result) return;
     const a = document.createElement("a");
-    a.href = objectUrl;
-    a.download = `qr.${format}`;
+    a.href = result.dataUrl;
+    a.download = `qr.${result.format}`;
     a.click();
   };
 
   const handleCopy = async () => {
-    if (!data) return;
+    if (!result) return;
     try {
-      if (format === "png") {
+      if (result.format === "png") {
         await navigator.clipboard.write([
-          new ClipboardItem({ "image/png": data }),
+          new ClipboardItem({ "image/png": result.blob }),
         ]);
       } else {
         const img = new Image();
-        const svgUrl = URL.createObjectURL(data);
-        img.src = svgUrl;
+        img.src = result.dataUrl;
         await new Promise<void>((resolve) => {
           img.onload = () => resolve();
         });
@@ -69,7 +67,6 @@ export function QrPage() {
         canvas.height = size;
         const ctx = canvas.getContext("2d")!;
         ctx.drawImage(img, 0, 0, size, size);
-        URL.revokeObjectURL(svgUrl);
         const pngBlob = await new Promise<Blob>((resolve) => {
           canvas.toBlob((blob) => resolve(blob!), "image/png");
         });
@@ -108,7 +105,7 @@ export function QrPage() {
             <Label>포맷</Label>
             <RadioGroup
               value={format}
-              onValueChange={(v) => setFormat(v as "png" | "svg")}
+              onValueChange={(v) => setFormat(v as Format)}
               className="flex gap-4"
             >
               <div className="flex items-center gap-2">
@@ -139,38 +136,30 @@ export function QrPage() {
 
         <Button
           onClick={handleGenerate}
-          disabled={!canGenerate || isLoading}
+          disabled={!canGenerate || generating}
           className="w-full"
         >
           <QrCode className="mr-1 h-4 w-4" />
-          {isLoading ? "생성 중..." : "QR 코드 생성"}
+          {generating ? "생성 중..." : "QR 코드 생성"}
         </Button>
 
-        {(isLoading || objectUrl) && (
+        {result && (
           <div className="flex flex-col items-center gap-4 rounded-lg border bg-muted/30 p-6">
-            {isLoading ? (
-              <Skeleton className="h-[200px] w-[200px]" />
-            ) : (
-              objectUrl && (
-                <img
-                  src={objectUrl}
-                  alt="QR 코드"
-                  className="max-h-[300px] max-w-[300px]"
-                />
-              )
-            )}
-            {objectUrl && (
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={handleDownload}>
-                  <Download className="mr-1 h-4 w-4" />
-                  다운로드
-                </Button>
-                <Button variant="outline" onClick={handleCopy}>
-                  <Copy className="mr-1 h-4 w-4" />
-                  복사
-                </Button>
-              </div>
-            )}
+            <img
+              src={result.dataUrl}
+              alt="QR 코드"
+              className="max-h-[300px] max-w-[300px]"
+            />
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={handleDownload}>
+                <Download className="mr-1 h-4 w-4" />
+                다운로드
+              </Button>
+              <Button variant="outline" onClick={handleCopy}>
+                <Copy className="mr-1 h-4 w-4" />
+                복사
+              </Button>
+            </div>
           </div>
         )}
       </div>
