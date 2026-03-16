@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { MemberSheet } from "@/components/common/MemberSheet";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -56,8 +57,8 @@ function paymentVariant(status: string) {
 }
 
 export function MembersPage() {
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const selectedMemberId = searchParams.get("member");
 
   const page = Number(searchParams.get("page") ?? "1");
   const track = searchParams.get("track") ?? "";
@@ -196,7 +197,11 @@ export function MembersPage() {
                   <TableRow
                     key={member.id}
                     className="cursor-pointer"
-                    onClick={() => navigate(`/members/${member.id}`)}
+                    onClick={() => {
+                      const next = new URLSearchParams(searchParams);
+                      next.set("member", member.id);
+                      setSearchParams(next);
+                    }}
                   >
                     <TableCell className="font-medium">{member.name}</TableCell>
                     <TableCell>{member.email}</TableCell>
@@ -223,6 +228,18 @@ export function MembersPage() {
           </TableBody>
         </Table>
       </div>
+
+      <MemberSheet
+        memberId={selectedMemberId}
+        open={!!selectedMemberId}
+        onOpenChange={(open) => {
+          if (!open) {
+            const next = new URLSearchParams(searchParams);
+            next.delete("member");
+            setSearchParams(next);
+          }
+        }}
+      />
 
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2">
