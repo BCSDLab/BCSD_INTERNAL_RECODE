@@ -34,47 +34,61 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 }
 
 // --- SVG 생성 (미리보기 + SVG 다운로드 공용) ---
+// QRCode.create()로 모듈 데이터를 얻어 개별 rect로 렌더링.
 
 async function buildSvgString(text: string, size: number, withLogo: boolean, colors: QrColors): Promise<string> {
-  const svgString = await QRCode.toString(text, {
-    type: "svg",
-    width: size,
-    margin: 2,
-    errorCorrectionLevel: "H",
-    color: { dark: colors.dark, light: colors.light },
-  });
+  const margin = 2;
+  const qr = QRCode.create(text, { errorCorrectionLevel: "H" });
+  const modules = qr.modules;
+  const modCount = modules.size; // number of modules per side
+  const totalMods = modCount + margin * 2;
+  const cellSize = size / totalMods;
 
-  if (!withLogo) return svgString;
-
-  try {
-    const logoSvg = await (await fetch(LOGO_PATH)).text();
-
-    const vbMatch = svgString.match(/viewBox="0 0 (\d+) (\d+)"/);
-    const vbSize = vbMatch ? Number(vbMatch[1]) : size;
-
-    const logoVbMatch = logoSvg.match(/viewBox="([^"]*)"/);
-    const logoVb = logoVbMatch ? logoVbMatch[1].split(/\s+/).map(Number) : [0, 0, 100, 100];
-    const logoNatW = logoVb[2] - logoVb[0];
-    const logoNatH = logoVb[3] - logoVb[1];
-    const ratio = logoNatW / logoNatH;
-
-    const logoSize = vbSize * 0.26;
-    const lw = ratio >= 1 ? logoSize : logoSize * ratio;
-    const lh = ratio >= 1 ? logoSize / ratio : logoSize;
-    const lx = (vbSize - lw) / 2;
-    const ly = (vbSize - lh) / 2;
-    const scale = lw / logoNatW;
-
-    const innerMatch = logoSvg.match(/<svg[^>]*>([\s\S]*)<\/svg>/);
-    const logoInner = innerMatch ? innerMatch[1] : "";
-
-    const overlay =
-      `<g transform="translate(${lx},${ly}) scale(${scale})">${logoInner}</g>`;
-
-    return svgString.replace("</svg>", `${overlay}</svg>`);
-  } catch {
-    return svgString;
+  const rects: string[] = [];
+  for (let row = 0; row < modCount; row++) {
+    for (let col = 0; col < modCount; col++) {
+      if (!modules.get(row, col)) continue;
+      const x = (col + margin) * cellSize;
+      const y = (row + margin) * cellSize;
+      rects.push(`<rect x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" fill="${colors.dark}"/>`);
+    }
   }
+
+  let logoOverlay = "";
+  if (withLogo) {
+    try {
+      const logoSvg = await (await fetch(LOGO_PATH)).text();
+
+      const logoVbMatch = logoSvg.match(/viewBox="([^"]*)"/);
+      const logoVb = logoVbMatch ? logoVbMatch[1].split(/\s+/).map(Number) : [0, 0, 100, 100];
+      const logoNatW = logoVb[2] - logoVb[0];
+      const logoNatH = logoVb[3] - logoVb[1];
+      const ratio = logoNatW / logoNatH;
+
+      const logoSize = size * 0.26;
+      const lw = ratio >= 1 ? logoSize : logoSize * ratio;
+      const lh = ratio >= 1 ? logoSize / ratio : logoSize;
+      const lx = (size - lw) / 2;
+      const ly = (size - lh) / 2;
+      const scale = lw / logoNatW;
+
+      const innerMatch = logoSvg.match(/<svg[^>]*>([\s\S]*)<\/svg>/);
+      const logoInner = innerMatch ? innerMatch[1] : "";
+
+      logoOverlay =
+        `<g transform="translate(${lx},${ly}) scale(${scale})">${logoInner}</g>`;
+    } catch {
+      // 로고 로드 실패 시 무시
+    }
+  }
+
+  return [
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" shape-rendering="crispEdges">`,
+    `<rect width="${size}" height="${size}" fill="${colors.light}"/>`,
+    ...rects,
+    logoOverlay,
+    `</svg>`,
+  ].join("");
 }
 
 // --- PNG 변환 (다운로드/복사용, SVG → Canvas → PNG) ---
