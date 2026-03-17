@@ -2,7 +2,13 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import QRCode from "qrcode";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Download, Copy, QrCode } from "lucide-react";
@@ -12,10 +18,9 @@ const LOGO_PATH = "/BCSD-symbol.svg";
 
 type Format = "png" | "svg";
 
-interface QrResult {
-  dataUrl: string;
-  format: Format;
-  blob: Blob;
+interface QrColors {
+  dark: string;
+  light: string;
 }
 
 function loadImage(src: string): Promise<HTMLImageElement> {
@@ -27,62 +32,9 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-interface QrColors {
-  dark: string;
-  light: string;
-}
+// --- SVG 생성 (미리보기 + SVG 다운로드 공용) ---
 
-async function renderQrToCanvas(
-  text: string,
-  size: number,
-  withLogo: boolean,
-  colors: QrColors,
-): Promise<HTMLCanvasElement> {
-  const canvas = document.createElement("canvas");
-  await QRCode.toCanvas(canvas, text, {
-    width: size,
-    margin: 2,
-    errorCorrectionLevel: withLogo ? "H" : "M",
-    color: { dark: colors.dark, light: colors.light },
-  });
-
-  if (withLogo) {
-    const ctx = canvas.getContext("2d")!;
-    try {
-      const logo = await loadImage(LOGO_PATH);
-      const boxSize = size * 0.28;
-      const pad = boxSize * 0.1;
-      const totalBox = boxSize + pad * 2;
-      const bx = (canvas.width - totalBox) / 2;
-      const by = (canvas.height - totalBox) / 2;
-      ctx.fillStyle = colors.light;
-      ctx.beginPath();
-      ctx.roundRect(bx, by, totalBox, totalBox, 6);
-      ctx.fill();
-      const ratio = logo.naturalWidth / logo.naturalHeight;
-      const lw = ratio >= 1 ? boxSize : boxSize * ratio;
-      const lh = ratio >= 1 ? boxSize / ratio : boxSize;
-      const lx = bx + pad + (boxSize - lw) / 2;
-      const ly = by + pad + (boxSize - lh) / 2;
-      ctx.drawImage(logo, lx, ly, lw, lh);
-    } catch {
-      // 로고 로드 실패 시 QR만 표시
-    }
-  }
-
-  return canvas;
-}
-
-async function generatePng(text: string, size: number, withLogo: boolean, colors: QrColors): Promise<QrResult> {
-  const canvas = await renderQrToCanvas(text, size, withLogo, colors);
-  const dataUrl = canvas.toDataURL("image/png");
-  const blob = await new Promise<Blob>((resolve) => {
-    canvas.toBlob((b) => resolve(b!), "image/png");
-  });
-  return { dataUrl, format: "png", blob };
-}
-
-async function generateSvg(text: string, size: number, withLogo: boolean, colors: QrColors): Promise<QrResult> {
+async function buildSvgString(text: string, size: number, withLogo: boolean, colors: QrColors): Promise<string> {
   const svgString = await QRCode.toString(text, {
     type: "svg",
     width: size,
@@ -91,50 +43,64 @@ async function generateSvg(text: string, size: number, withLogo: boolean, colors
     color: { dark: colors.dark, light: colors.light },
   });
 
-  let finalSvg = svgString;
+  if (!withLogo) return svgString;
 
-  if (withLogo) {
-    try {
-      const logoSvg = await (await fetch(LOGO_PATH)).text();
+  try {
+    const logoSvg = await (await fetch(LOGO_PATH)).text();
 
-      const vbMatch = svgString.match(/viewBox="0 0 (\d+) (\d+)"/);
-      const vbSize = vbMatch ? Number(vbMatch[1]) : size;
+    const vbMatch = svgString.match(/viewBox="0 0 (\d+) (\d+)"/);
+    const vbSize = vbMatch ? Number(vbMatch[1]) : size;
 
-      const logoVbMatch = logoSvg.match(/viewBox="([^"]*)"/);
-      const logoVb = logoVbMatch ? logoVbMatch[1].split(/\s+/).map(Number) : [0, 0, 100, 100];
-      const logoNatW = logoVb[2] - logoVb[0];
-      const logoNatH = logoVb[3] - logoVb[1];
-      const ratio = logoNatW / logoNatH;
+    const logoVbMatch = logoSvg.match(/viewBox="([^"]*)"/);
+    const logoVb = logoVbMatch ? logoVbMatch[1].split(/\s+/).map(Number) : [0, 0, 100, 100];
+    const logoNatW = logoVb[2] - logoVb[0];
+    const logoNatH = logoVb[3] - logoVb[1];
+    const ratio = logoNatW / logoNatH;
 
-      const boxSize = vbSize * 0.28;
-      const pad = boxSize * 0.1;
-      const totalBox = boxSize + pad * 2;
-      const bx = (vbSize - totalBox) / 2;
-      const by = (vbSize - totalBox) / 2;
-      const rx = 6 * (vbSize / size);
+    const boxSize = vbSize * 0.28;
+    const pad = boxSize * 0.1;
+    const totalBox = boxSize + pad * 2;
+    const bx = (vbSize - totalBox) / 2;
+    const by = (vbSize - totalBox) / 2;
+    const rx = 6 * (vbSize / size);
 
-      const lw = ratio >= 1 ? boxSize : boxSize * ratio;
-      const lh = ratio >= 1 ? boxSize / ratio : boxSize;
-      const lx = bx + pad + (boxSize - lw) / 2;
-      const ly = by + pad + (boxSize - lh) / 2;
-      const scale = lw / logoNatW;
+    const lw = ratio >= 1 ? boxSize : boxSize * ratio;
+    const lh = ratio >= 1 ? boxSize / ratio : boxSize;
+    const lx = bx + pad + (boxSize - lw) / 2;
+    const ly = by + pad + (boxSize - lh) / 2;
+    const scale = lw / logoNatW;
 
-      const innerMatch = logoSvg.match(/<svg[^>]*>([\s\S]*)<\/svg>/);
-      const logoInner = innerMatch ? innerMatch[1] : "";
+    const innerMatch = logoSvg.match(/<svg[^>]*>([\s\S]*)<\/svg>/);
+    const logoInner = innerMatch ? innerMatch[1] : "";
 
-      const overlay =
-        `<rect x="${bx}" y="${by}" width="${totalBox}" height="${totalBox}" rx="${rx}" fill="${colors.light}"/>` +
-        `<g transform="translate(${lx},${ly}) scale(${scale})">${logoInner}</g>`;
+    const overlay =
+      `<rect x="${bx}" y="${by}" width="${totalBox}" height="${totalBox}" rx="${rx}" fill="${colors.light}"/>` +
+      `<g transform="translate(${lx},${ly}) scale(${scale})">${logoInner}</g>`;
 
-      finalSvg = svgString.replace("</svg>", `${overlay}</svg>`);
-    } catch {
-      // 로고 로드 실패 시 QR만 표시
-    }
+    return svgString.replace("</svg>", `${overlay}</svg>`);
+  } catch {
+    return svgString;
   }
+}
 
-  const blob = new Blob([finalSvg], { type: "image/svg+xml" });
-  const dataUrl = URL.createObjectURL(blob);
-  return { dataUrl, format: "svg", blob };
+// --- PNG 변환 (다운로드/복사용, SVG → Canvas → PNG) ---
+
+async function svgToPngBlob(svgStr: string, size: number): Promise<Blob> {
+  const blob = new Blob([svgStr], { type: "image/svg+xml" });
+  const url = URL.createObjectURL(blob);
+  try {
+    const img = await loadImage(url);
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d")!;
+    ctx.drawImage(img, 0, 0, size, size);
+    return await new Promise<Blob>((resolve) => {
+      canvas.toBlob((b) => resolve(b!), "image/png");
+    });
+  } finally {
+    URL.revokeObjectURL(url);
+  }
 }
 
 export function QrPage() {
@@ -144,23 +110,27 @@ export function QrPage() {
   const [withLogo, setWithLogo] = useState(false);
   const [fgColor, setFgColor] = useState("#000000");
   const [bgColor, setBgColor] = useState("#ffffff");
-  const [result, setResult] = useState<QrResult | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const generatedText = useRef("");
+  const svgCache = useRef("");
 
   const textTooLong = text.length > 2000;
   const canGenerate = text.trim().length > 0 && !textTooLong;
 
-  const generate = useCallback(async (targetText: string, fmt: Format, sz: number, logo: boolean, fg: string, bg: string) => {
+  const generate = useCallback(async (targetText: string, sz: number, logo: boolean, fg: string, bg: string) => {
     if (!targetText) return;
     setGenerating(true);
     try {
       const colors: QrColors = { dark: fg, light: bg };
-      if (fmt === "png") {
-        setResult(await generatePng(targetText, sz, logo, colors));
-      } else {
-        setResult(await generateSvg(targetText, sz, logo, colors));
-      }
+      const svg = await buildSvgString(targetText, sz, logo, colors);
+      svgCache.current = svg;
+      const blob = new Blob([svg], { type: "image/svg+xml" });
+      const url = URL.createObjectURL(blob);
+      setPreviewUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return url;
+      });
     } catch {
       toast.error("QR 코드 생성에 실패했습니다.");
     } finally {
@@ -171,44 +141,37 @@ export function QrPage() {
   const handleGenerate = () => {
     if (!canGenerate) return;
     generatedText.current = text.trim();
-    generate(generatedText.current, format, size, withLogo, fgColor, bgColor);
+    generate(generatedText.current, size, withLogo, fgColor, bgColor);
   };
 
   useEffect(() => {
     if (generatedText.current) {
-      generate(generatedText.current, format, size, withLogo, fgColor, bgColor);
+      generate(generatedText.current, size, withLogo, fgColor, bgColor);
     }
-  }, [format, size, withLogo, fgColor, bgColor, generate]);
+  }, [size, withLogo, fgColor, bgColor, generate]);
 
-  const handleDownload = () => {
-    if (!result) return;
+  const handleDownload = async () => {
+    if (!svgCache.current) return;
     const a = document.createElement("a");
-    a.href = result.dataUrl;
-    a.download = `qr.${result.format}`;
+    if (format === "svg") {
+      const blob = new Blob([svgCache.current], { type: "image/svg+xml" });
+      a.href = URL.createObjectURL(blob);
+      a.download = "qr.svg";
+    } else {
+      const pngBlob = await svgToPngBlob(svgCache.current, size);
+      a.href = URL.createObjectURL(pngBlob);
+      a.download = "qr.png";
+    }
     a.click();
   };
 
   const handleCopy = async () => {
-    if (!result) return;
+    if (!svgCache.current) return;
     try {
-      if (result.format === "png") {
-        await navigator.clipboard.write([
-          new ClipboardItem({ "image/png": result.blob }),
-        ]);
-      } else {
-        const img = await loadImage(result.dataUrl);
-        const canvas = document.createElement("canvas");
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext("2d")!;
-        ctx.drawImage(img, 0, 0, size, size);
-        const pngBlob = await new Promise<Blob>((resolve) => {
-          canvas.toBlob((blob) => resolve(blob!), "image/png");
-        });
-        await navigator.clipboard.write([
-          new ClipboardItem({ "image/png": pngBlob }),
-        ]);
-      }
+      const pngBlob = await svgToPngBlob(svgCache.current, size);
+      await navigator.clipboard.write([
+        new ClipboardItem({ "image/png": pngBlob }),
+      ]);
       toast.success("클립보드에 복사되었습니다.");
     } catch {
       toast.error("클립보드 복사에 실패했습니다.");
@@ -250,21 +213,16 @@ export function QrPage() {
 
         <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
           <div className="space-y-2">
-            <Label>포맷</Label>
-            <RadioGroup
-              value={format}
-              onValueChange={(v) => setFormat(v as Format)}
-              className="flex gap-4"
-            >
-              <div className="flex items-center gap-2">
-                <RadioGroupItem value="png" id="format-png" />
-                <Label htmlFor="format-png">PNG</Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <RadioGroupItem value="svg" id="format-svg" />
-                <Label htmlFor="format-svg">SVG</Label>
-              </div>
-            </RadioGroup>
+            <Label>다운로드 포맷</Label>
+            <Select value={format} onValueChange={(v) => setFormat(v as Format)}>
+              <SelectTrigger className="w-24">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent alignItemWithTrigger={false}>
+                <SelectItem value="png">PNG</SelectItem>
+                <SelectItem value="svg">SVG</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
@@ -322,17 +280,17 @@ export function QrPage() {
           </div>
         </div>
 
-        {result && (
+        {previewUrl && (
           <div className="flex flex-col items-center gap-4 rounded-lg border bg-muted/30 p-6">
             <img
-              src={result.dataUrl}
+              src={previewUrl}
               alt="QR 코드"
               className="max-h-[300px] max-w-[300px]"
             />
             <div className="flex gap-2">
               <Button variant="outline" onClick={handleDownload}>
                 <Download className="mr-1 h-4 w-4" />
-                다운로드
+                다운로드 ({format.toUpperCase()})
               </Button>
               <Button variant="outline" onClick={handleCopy}>
                 <Copy className="mr-1 h-4 w-4" />
