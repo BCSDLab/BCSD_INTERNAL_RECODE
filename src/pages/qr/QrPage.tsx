@@ -59,7 +59,7 @@ async function buildSvgString(text: string, size: number, withLogo: boolean, col
     const ratio = logoNatW / logoNatH;
 
     const boxSize = vbSize * 0.26;
-    const pad = boxSize * 0.06;
+    const pad = boxSize * 0.02;
     const totalBox = boxSize + pad * 2;
     const bx = (vbSize - totalBox) / 2;
     const by = (vbSize - totalBox) / 2;
