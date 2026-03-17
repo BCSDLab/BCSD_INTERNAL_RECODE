@@ -178,9 +178,9 @@ export function LinksPage() {
                   >
                     <TableCell className="font-medium">{link.title}</TableCell>
                     <TableCell>
-                      <button
-                        type="button"
-                        className="cursor-pointer text-blue-600 hover:underline"
+                      <Button
+                        variant="link"
+                        className="h-auto p-0 text-blue-600"
                         onClick={(e) => {
                           e.stopPropagation();
                           navigator.clipboard.writeText(shortUrl(link.code));
@@ -188,7 +188,7 @@ export function LinksPage() {
                         }}
                       >
                         {shortUrl(link.code)}
-                      </button>
+                      </Button>
                     </TableCell>
                     <TableCell>{creatorMap.get(link.creator_id) ?? link.creator_id}</TableCell>
                     <TableCell>{formatDate(link.created_at)}</TableCell>

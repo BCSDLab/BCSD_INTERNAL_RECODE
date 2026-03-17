@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Download, Copy, QrCode } from "lucide-react";
 import { toast } from "sonner";
@@ -267,16 +268,15 @@ export function QrPage() {
             </div>
           </div>
 
-          <div className="col-span-2 w-fit sm:col-span-4">
-            <Label className="flex items-center gap-2">
-              <input
-                type="checkbox"
+          <div className="col-span-2 sm:col-span-4">
+            <div className="flex items-center gap-2">
+              <Switch
+                id="qr-logo"
                 checked={withLogo}
-                onChange={(e) => setWithLogo(e.target.checked)}
-                className="accent-primary h-4 w-4"
+                onCheckedChange={setWithLogo}
               />
-              BCSD 로고 삽입
-            </Label>
+              <Label htmlFor="qr-logo">BCSD 로고 삽입</Label>
+            </div>
           </div>
         </div>
 
