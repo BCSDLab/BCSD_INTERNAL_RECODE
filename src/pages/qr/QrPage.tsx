@@ -58,24 +58,17 @@ async function buildSvgString(text: string, size: number, withLogo: boolean, col
     const logoNatH = logoVb[3] - logoVb[1];
     const ratio = logoNatW / logoNatH;
 
-    const boxSize = vbSize * 0.26;
-    const pad = boxSize * 0.02;
-    const totalBox = boxSize + pad * 2;
-    const bx = (vbSize - totalBox) / 2;
-    const by = (vbSize - totalBox) / 2;
-    const rx = 6 * (vbSize / size);
-
-    const lw = ratio >= 1 ? boxSize : boxSize * ratio;
-    const lh = ratio >= 1 ? boxSize / ratio : boxSize;
-    const lx = bx + pad + (boxSize - lw) / 2;
-    const ly = by + pad + (boxSize - lh) / 2;
+    const logoSize = vbSize * 0.26;
+    const lw = ratio >= 1 ? logoSize : logoSize * ratio;
+    const lh = ratio >= 1 ? logoSize / ratio : logoSize;
+    const lx = (vbSize - lw) / 2;
+    const ly = (vbSize - lh) / 2;
     const scale = lw / logoNatW;
 
     const innerMatch = logoSvg.match(/<svg[^>]*>([\s\S]*)<\/svg>/);
     const logoInner = innerMatch ? innerMatch[1] : "";
 
     const overlay =
-      `<rect x="${bx}" y="${by}" width="${totalBox}" height="${totalBox}" rx="${rx}" fill="${colors.light}"/>` +
       `<g transform="translate(${lx},${ly}) scale(${scale})">${logoInner}</g>`;
 
     return svgString.replace("</svg>", `${overlay}</svg>`);
