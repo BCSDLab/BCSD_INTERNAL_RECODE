@@ -35,6 +35,7 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 
 // --- SVG 생성 (미리보기 + SVG 다운로드 공용) ---
 // QRCode.create()로 모듈 데이터를 얻어 개별 rect로 렌더링.
+// 로고 모드에서는 중앙 영역 모듈을 제외하고 로고를 배치한다.
 
 async function buildSvgString(text: string, size: number, withLogo: boolean, colors: QrColors): Promise<string> {
   const margin = 2;
@@ -44,10 +45,22 @@ async function buildSvgString(text: string, size: number, withLogo: boolean, col
   const totalMods = modCount + margin * 2;
   const cellSize = size / totalMods;
 
+  // 중앙 제외 영역 (로고가 차지할 모듈 범위)
+  const centerFraction = 0.25; // 25% of QR area
+  const centerModSize = Math.ceil(modCount * centerFraction);
+  // 짝수로 맞춰서 정중앙 대칭
+  const centerMods = centerModSize % 2 === modCount % 2 ? centerModSize : centerModSize + 1;
+  const centerStart = Math.floor((modCount - centerMods) / 2);
+  const centerEnd = centerStart + centerMods;
+
   const rects: string[] = [];
   for (let row = 0; row < modCount; row++) {
     for (let col = 0; col < modCount; col++) {
       if (!modules.get(row, col)) continue;
+      // 로고 모드: 중앙 영역 모듈 건너뛰기
+      if (withLogo && row >= centerStart && row < centerEnd && col >= centerStart && col < centerEnd) {
+        continue;
+      }
       const x = (col + margin) * cellSize;
       const y = (row + margin) * cellSize;
       rects.push(`<rect x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" fill="${colors.dark}"/>`);
@@ -65,17 +78,27 @@ async function buildSvgString(text: string, size: number, withLogo: boolean, col
       const logoNatH = logoVb[3] - logoVb[1];
       const ratio = logoNatW / logoNatH;
 
-      const logoSize = size * 0.26;
-      const lw = ratio >= 1 ? logoSize : logoSize * ratio;
-      const lh = ratio >= 1 ? logoSize / ratio : logoSize;
-      const lx = (size - lw) / 2;
-      const ly = (size - lh) / 2;
+      // 로고 배경: 제외 영역에 맞춤
+      const bgX = (centerStart + margin) * cellSize;
+      const bgY = (centerStart + margin) * cellSize;
+      const bgSize = centerMods * cellSize;
+      const bgRadius = cellSize * 1.5;
+
+      // 로고: 배경 안에 패딩 두고 배치
+      const padding = bgSize * 0.15;
+      const availW = bgSize - padding * 2;
+      const availH = bgSize - padding * 2;
+      const lw = ratio >= 1 ? availW : availH * ratio;
+      const lh = ratio >= 1 ? availW / ratio : availH;
+      const lx = bgX + (bgSize - lw) / 2;
+      const ly = bgY + (bgSize - lh) / 2;
       const scale = lw / logoNatW;
 
       const innerMatch = logoSvg.match(/<svg[^>]*>([\s\S]*)<\/svg>/);
       const logoInner = innerMatch ? innerMatch[1] : "";
 
       logoOverlay =
+        `<rect x="${bgX}" y="${bgY}" width="${bgSize}" height="${bgSize}" rx="${bgRadius}" ry="${bgRadius}" fill="${colors.light}"/>` +
         `<g transform="translate(${lx},${ly}) scale(${scale})">${logoInner}</g>`;
     } catch {
       // 로고 로드 실패 시 무시
