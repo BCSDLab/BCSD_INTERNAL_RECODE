@@ -8,7 +8,6 @@ export interface LinkResponse {
   created_at: string;
   expires_at: string | null;
   expired_at: string | null;
-  expired: string;
   updated_at: string;
 }
 

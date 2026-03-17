@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { toast } from "sonner";
 import { useLinks, useLinkFilters } from "@/hooks/use-links";
 import { LinkSheet } from "./LinkSheet";
 import { LinkDialog } from "./LinkDialog";
@@ -30,11 +31,17 @@ const ALL_CREATOR = "전체 생성자";
 const ALL_STATUS = "전체 상태";
 const PAGE_SIZE = 20;
 
-function expiredBadge(expired: string) {
-  if (expired === "active") {
-    return <Badge variant="default">활성</Badge>;
+function isLinkExpired(link: { expired_at: string | null; expires_at: string | null }) {
+  if (link.expired_at) return true;
+  if (link.expires_at && new Date(link.expires_at) < new Date()) return true;
+  return false;
+}
+
+function expiredBadge(link: { expired_at: string | null; expires_at: string | null }) {
+  if (isLinkExpired(link)) {
+    return <Badge variant="destructive">만료</Badge>;
   }
-  return <Badge variant="destructive">만료</Badge>;
+  return <Badge variant="default">활성</Badge>;
 }
 
 function formatDate(iso: string) {
@@ -170,10 +177,22 @@ export function LinksPage() {
                     }}
                   >
                     <TableCell className="font-medium">{link.title}</TableCell>
-                    <TableCell className="text-blue-600">{shortUrl(link.code)}</TableCell>
+                    <TableCell>
+                      <button
+                        type="button"
+                        className="cursor-pointer text-blue-600 hover:underline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigator.clipboard.writeText(shortUrl(link.code));
+                          toast.success("단축 URL이 복사되었습니다.");
+                        }}
+                      >
+                        {shortUrl(link.code)}
+                      </button>
+                    </TableCell>
                     <TableCell>{creatorMap.get(link.creator_id) ?? link.creator_id}</TableCell>
                     <TableCell>{formatDate(link.created_at)}</TableCell>
-                    <TableCell>{expiredBadge(link.expired)}</TableCell>
+                    <TableCell>{expiredBadge(link)}</TableCell>
                     <TableCell>
                       {link.expires_at ? formatDate(link.expires_at) : "무기한"}
                     </TableCell>

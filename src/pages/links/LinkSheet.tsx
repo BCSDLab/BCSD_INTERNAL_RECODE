@@ -58,7 +58,9 @@ export function LinkSheet({ linkId, open, onOpenChange, onEdit }: LinkSheetProps
   const deleteMutation = useDeleteLink();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  const isExpired = detail?.expired === "expired";
+  const isExpired = detail
+    ? !!(detail.expired_at || (detail.expires_at && new Date(detail.expires_at) < new Date()))
+    : false;
 
   const handleToggle = () => {
     if (!linkId) return;
@@ -124,7 +126,18 @@ export function LinkSheet({ linkId, open, onOpenChange, onEdit }: LinkSheetProps
                     </a>
                   </DetailRow>
                   <Separator />
-                  <DetailRow label="단축 URL">{shortUrl(detail.code)}</DetailRow>
+                  <DetailRow label="단축 URL">
+                    <button
+                      type="button"
+                      className="cursor-pointer text-blue-600 hover:underline"
+                      onClick={() => {
+                        navigator.clipboard.writeText(shortUrl(detail.code));
+                        toast.success("단축 URL이 복사되었습니다.");
+                      }}
+                    >
+                      {shortUrl(detail.code)}
+                    </button>
+                  </DetailRow>
                   <Separator />
                   <DetailRow label="상태">
                     <Badge variant={isExpired ? "destructive" : "default"}>
