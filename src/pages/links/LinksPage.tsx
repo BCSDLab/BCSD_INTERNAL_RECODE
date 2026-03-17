@@ -23,6 +23,7 @@ import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useLinks, useLinkFilters } from "@/hooks/use-links";
 import { LinkSheet } from "./LinkSheet";
 import { LinkDialog } from "./LinkDialog";
+import { shortUrl } from "@/lib/constants";
 import type { LinkFilterParams, LinkDetail } from "@/types/link";
 
 const ALL_CREATOR = "전체 생성자";
@@ -169,7 +170,7 @@ export function LinksPage() {
                     }}
                   >
                     <TableCell className="font-medium">{link.title}</TableCell>
-                    <TableCell className="text-blue-600">s/{link.code}</TableCell>
+                    <TableCell className="text-blue-600">{shortUrl(link.code)}</TableCell>
                     <TableCell>{creatorMap.get(link.creator_id) ?? link.creator_id}</TableCell>
                     <TableCell>{formatDate(link.created_at)}</TableCell>
                     <TableCell>{expiredBadge(link.expired)}</TableCell>

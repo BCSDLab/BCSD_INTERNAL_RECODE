@@ -25,6 +25,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { BarChart, Bar, XAxis, YAxis } from "recharts";
 import { toast } from "sonner";
 import { useLinkDetail, useToggleLink, useDeleteLink } from "@/hooks/use-links";
+import { shortUrl } from "@/lib/constants";
 import type { LinkDetail } from "@/types/link";
 import type { ChartConfig } from "@/components/ui/chart";
 
@@ -108,7 +109,7 @@ export function LinkSheet({ linkId, open, onOpenChange, onEdit }: LinkSheetProps
             <>
               <SheetHeader>
                 <SheetTitle>{detail.title}</SheetTitle>
-                <SheetDescription>s/{detail.code}</SheetDescription>
+                <SheetDescription>{shortUrl(detail.code)}</SheetDescription>
               </SheetHeader>
               <div className="px-4 pb-4">
                 <dl>
@@ -123,7 +124,7 @@ export function LinkSheet({ linkId, open, onOpenChange, onEdit }: LinkSheetProps
                     </a>
                   </DetailRow>
                   <Separator />
-                  <DetailRow label="단축 URL">s/{detail.code}</DetailRow>
+                  <DetailRow label="단축 URL">{shortUrl(detail.code)}</DetailRow>
                   <Separator />
                   <DetailRow label="상태">
                     <Badge variant={isExpired ? "destructive" : "default"}>

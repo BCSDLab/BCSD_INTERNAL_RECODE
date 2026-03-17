@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Download, Copy, QrCode } from "lucide-react";
 import { toast } from "sonner";
 
-const LOGO_PATH = "/bcsd-logo.png";
+const LOGO_PATH = "/BCSD-symbol.svg";
 
 type Format = "png" | "svg";
 
@@ -27,13 +27,24 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
+interface QrColors {
+  dark: string;
+  light: string;
+}
+
 async function renderQrToCanvas(
   text: string,
   size: number,
   withLogo: boolean,
+  colors: QrColors,
 ): Promise<HTMLCanvasElement> {
   const canvas = document.createElement("canvas");
-  await QRCode.toCanvas(canvas, text, { width: size, margin: 2, errorCorrectionLevel: withLogo ? "H" : "M" });
+  await QRCode.toCanvas(canvas, text, {
+    width: size,
+    margin: 2,
+    errorCorrectionLevel: withLogo ? "H" : "M",
+    color: { dark: colors.dark, light: colors.light },
+  });
 
   if (withLogo) {
     const ctx = canvas.getContext("2d")!;
@@ -43,7 +54,7 @@ async function renderQrToCanvas(
       const x = (canvas.width - logoSize) / 2;
       const y = (canvas.height - logoSize) / 2;
       const padding = logoSize * 0.15;
-      ctx.fillStyle = "#ffffff";
+      ctx.fillStyle = colors.light;
       ctx.beginPath();
       ctx.roundRect(x - padding, y - padding, logoSize + padding * 2, logoSize + padding * 2, 6);
       ctx.fill();
@@ -56,16 +67,17 @@ async function renderQrToCanvas(
   return canvas;
 }
 
-async function generatePng(text: string, size: number, withLogo: boolean): Promise<QrResult> {
-  const canvas = await renderQrToCanvas(text, size, withLogo);
+async function generatePng(text: string, size: number, withLogo: boolean, colors: QrColors): Promise<QrResult> {
+  const canvas = await renderQrToCanvas(text, size, withLogo, colors);
   const dataUrl = canvas.toDataURL("image/png");
-  const res = await fetch(dataUrl);
-  const blob = await res.blob();
+  const blob = await new Promise<Blob>((resolve) => {
+    canvas.toBlob((b) => resolve(b!), "image/png");
+  });
   return { dataUrl, format: "png", blob };
 }
 
-async function generateSvg(text: string, size: number): Promise<QrResult> {
-  const svgString = await QRCode.toString(text, { type: "svg", width: size, margin: 2 });
+async function generateSvg(text: string, size: number, colors: QrColors): Promise<QrResult> {
+  const svgString = await QRCode.toString(text, { type: "svg", width: size, margin: 2, color: { dark: colors.dark, light: colors.light } });
   const blob = new Blob([svgString], { type: "image/svg+xml" });
   const dataUrl = URL.createObjectURL(blob);
   return { dataUrl, format: "svg", blob };
@@ -76,6 +88,8 @@ export function QrPage() {
   const [format, setFormat] = useState<Format>("png");
   const [size, setSize] = useState(300);
   const [withLogo, setWithLogo] = useState(false);
+  const [fgColor, setFgColor] = useState("#000000");
+  const [bgColor, setBgColor] = useState("#ffffff");
   const [result, setResult] = useState<QrResult | null>(null);
   const [generating, setGenerating] = useState(false);
 
@@ -87,10 +101,11 @@ export function QrPage() {
     setGenerating(true);
     try {
       const trimmed = text.trim();
+      const colors: QrColors = { dark: fgColor, light: bgColor };
       if (format === "png") {
-        setResult(await generatePng(trimmed, size, withLogo));
+        setResult(await generatePng(trimmed, size, withLogo, colors));
       } else {
-        setResult(await generateSvg(trimmed, size));
+        setResult(await generateSvg(trimmed, size, colors));
       }
     } catch {
       toast.error("QR 코드 생성에 실패했습니다.");
@@ -214,6 +229,34 @@ export function QrPage() {
             {format === "svg" && withLogo && (
               <p className="text-xs text-muted-foreground">SVG에는 로고를 삽입할 수 없습니다.</p>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="qr-fg">QR 색상</Label>
+            <div className="flex items-center gap-2">
+              <input
+                id="qr-fg"
+                type="color"
+                value={fgColor}
+                onChange={(e) => setFgColor(e.target.value)}
+                className="h-8 w-8 cursor-pointer rounded border"
+              />
+              <span className="text-xs text-muted-foreground">{fgColor}</span>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="qr-bg">배경 색상</Label>
+            <div className="flex items-center gap-2">
+              <input
+                id="qr-bg"
+                type="color"
+                value={bgColor}
+                onChange={(e) => setBgColor(e.target.value)}
+                className="h-8 w-8 cursor-pointer rounded border"
+              />
+              <span className="text-xs text-muted-foreground">{bgColor}</span>
+            </div>
           </div>
         </div>
 
