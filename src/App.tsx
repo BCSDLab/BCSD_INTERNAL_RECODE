@@ -7,6 +7,7 @@ import { RegisterPage } from "@/pages/register/RegisterPage";
 import { MembersPage } from "@/pages/members/MembersPage";
 import { LinksPage } from "@/pages/links/LinksPage";
 import { QrPage } from "@/pages/qr/QrPage";
+import { ExpiredPage } from "@/pages/expired/ExpiredPage";
 import { Toaster } from "@/components/ui/sonner";
 
 export default function App() {
@@ -24,6 +25,7 @@ export default function App() {
             <Route path="/qr" element={<QrPage />} />
           </Route>
         </Route>
+        <Route path="/expired" element={<ExpiredPage />} />
         <Route path="/" element={<Navigate to="/members" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
