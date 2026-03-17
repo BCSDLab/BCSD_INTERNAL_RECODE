@@ -39,7 +39,7 @@ async function buildSvgString(text: string, size: number, withLogo: boolean, col
     type: "svg",
     width: size,
     margin: 2,
-    errorCorrectionLevel: withLogo ? "H" : "Q",
+    errorCorrectionLevel: "H",
     color: { dark: colors.dark, light: colors.light },
   });
 
