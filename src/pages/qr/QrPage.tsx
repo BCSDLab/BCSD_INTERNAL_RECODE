@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import QRCode from "qrcode";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -92,27 +92,39 @@ export function QrPage() {
   const [bgColor, setBgColor] = useState("#ffffff");
   const [result, setResult] = useState<QrResult | null>(null);
   const [generating, setGenerating] = useState(false);
+  const generatedText = useRef("");
 
   const textTooLong = text.length > 2000;
   const canGenerate = text.trim().length > 0 && !textTooLong;
 
-  const handleGenerate = async () => {
-    if (!canGenerate) return;
+  const generate = useCallback(async (targetText: string, fmt: Format, sz: number, logo: boolean, fg: string, bg: string) => {
+    if (!targetText) return;
     setGenerating(true);
     try {
-      const trimmed = text.trim();
-      const colors: QrColors = { dark: fgColor, light: bgColor };
-      if (format === "png") {
-        setResult(await generatePng(trimmed, size, withLogo, colors));
+      const colors: QrColors = { dark: fg, light: bg };
+      if (fmt === "png") {
+        setResult(await generatePng(targetText, sz, logo, colors));
       } else {
-        setResult(await generateSvg(trimmed, size, colors));
+        setResult(await generateSvg(targetText, sz, colors));
       }
     } catch {
       toast.error("QR 코드 생성에 실패했습니다.");
     } finally {
       setGenerating(false);
     }
+  }, []);
+
+  const handleGenerate = () => {
+    if (!canGenerate) return;
+    generatedText.current = text.trim();
+    generate(generatedText.current, format, size, withLogo, fgColor, bgColor);
   };
+
+  useEffect(() => {
+    if (generatedText.current) {
+      generate(generatedText.current, format, size, withLogo, fgColor, bgColor);
+    }
+  }, [format, size, withLogo, fgColor, bgColor, generate]);
 
   const handleDownload = () => {
     if (!result) return;
@@ -182,7 +194,7 @@ export function QrPage() {
 
         <Separator />
 
-        <div className="flex flex-wrap items-end gap-6">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
           <div className="space-y-2">
             <Label>포맷</Label>
             <RadioGroup
@@ -216,22 +228,6 @@ export function QrPage() {
           </div>
 
           <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={withLogo}
-                onChange={(e) => setWithLogo(e.target.checked)}
-                disabled={format === "svg"}
-                className="accent-primary h-4 w-4"
-              />
-              BCSD 로고 삽입
-            </Label>
-            {format === "svg" && withLogo && (
-              <p className="text-xs text-muted-foreground">SVG에는 로고를 삽입할 수 없습니다.</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="qr-fg">QR 색상</Label>
             <div className="flex items-center gap-2">
               <input
@@ -257,6 +253,22 @@ export function QrPage() {
               />
               <span className="text-xs text-muted-foreground">{bgColor}</span>
             </div>
+          </div>
+
+          <div className="col-span-2 space-y-2 sm:col-span-4">
+            <Label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={withLogo}
+                onChange={(e) => setWithLogo(e.target.checked)}
+                disabled={format === "svg"}
+                className="accent-primary h-4 w-4"
+              />
+              BCSD 로고 삽입
+            </Label>
+            {format === "svg" && withLogo && (
+              <p className="text-xs text-muted-foreground">SVG에는 로고를 삽입할 수 없습니다.</p>
+            )}
           </div>
         </div>
 
