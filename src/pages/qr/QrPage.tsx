@@ -46,7 +46,7 @@ async function buildSvgString(text: string, size: number, withLogo: boolean, col
   const cellSize = size / totalMods;
 
   // 중앙 제외 영역 (로고가 차지할 모듈 범위)
-  const centerFraction = 0.25; // 25% of QR area
+  const centerFraction = 0.30; // 30% of QR area
   const centerModSize = Math.ceil(modCount * centerFraction);
   // 짝수로 맞춰서 정중앙 대칭
   const centerMods = centerModSize % 2 === modCount % 2 ? centerModSize : centerModSize + 1;
@@ -85,7 +85,7 @@ async function buildSvgString(text: string, size: number, withLogo: boolean, col
       const bgRadius = cellSize * 1.5;
 
       // 로고: 배경 안에 패딩 두고 배치
-      const padding = bgSize * 0.15;
+      const padding = bgSize * 0.06;
       const availW = bgSize - padding * 2;
       const availH = bgSize - padding * 2;
       const lw = ratio >= 1 ? availW : availH * ratio;
@@ -224,7 +224,7 @@ export function QrPage() {
               placeholder="https://example.com"
             />
           </div>
-          <div className="flex items-end">
+          <div className="flex shrink-0 items-end">
             <Button
               onClick={handleGenerate}
               disabled={!canGenerate || generating}
