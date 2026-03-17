@@ -57,8 +57,8 @@ async function buildSvgString(text: string, size: number, withLogo: boolean, col
     const logoNatH = logoVb[3] - logoVb[1];
     const ratio = logoNatW / logoNatH;
 
-    const boxSize = vbSize * 0.28;
-    const pad = boxSize * 0.1;
+    const boxSize = vbSize * 0.22;
+    const pad = boxSize * 0.06;
     const totalBox = boxSize + pad * 2;
     const bx = (vbSize - totalBox) / 2;
     const by = (vbSize - totalBox) / 2;
@@ -215,7 +215,7 @@ export function QrPage() {
           <div className="space-y-2">
             <Label>다운로드 포맷</Label>
             <Select value={format} onValueChange={(v) => setFormat(v as Format)}>
-              <SelectTrigger className="w-24">
+              <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent alignItemWithTrigger={false}>
@@ -267,7 +267,7 @@ export function QrPage() {
             </div>
           </div>
 
-          <div className="col-span-2 space-y-2 sm:col-span-4">
+          <div className="col-span-2 w-fit sm:col-span-4">
             <Label className="flex items-center gap-2">
               <input
                 type="checkbox"
