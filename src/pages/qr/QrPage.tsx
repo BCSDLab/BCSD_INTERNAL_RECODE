@@ -76,9 +76,52 @@ async function generatePng(text: string, size: number, withLogo: boolean, colors
   return { dataUrl, format: "png", blob };
 }
 
-async function generateSvg(text: string, size: number, colors: QrColors): Promise<QrResult> {
-  const svgString = await QRCode.toString(text, { type: "svg", width: size, margin: 2, color: { dark: colors.dark, light: colors.light } });
-  const blob = new Blob([svgString], { type: "image/svg+xml" });
+async function generateSvg(text: string, size: number, withLogo: boolean, colors: QrColors): Promise<QrResult> {
+  const svgString = await QRCode.toString(text, {
+    type: "svg",
+    width: size,
+    margin: 2,
+    errorCorrectionLevel: withLogo ? "H" : "M",
+    color: { dark: colors.dark, light: colors.light },
+  });
+
+  let finalSvg = svgString;
+
+  if (withLogo) {
+    try {
+      const logoSvg = await (await fetch(LOGO_PATH)).text();
+
+      // QR의 viewBox 좌표계 기준으로 로고 크기/위치 계산
+      const vbMatch = svgString.match(/viewBox="0 0 (\d+) (\d+)"/);
+      const vbSize = vbMatch ? Number(vbMatch[1]) : size;
+
+      const logoSize = vbSize * 0.2;
+      const x = (vbSize - logoSize) / 2;
+      const y = (vbSize - logoSize) / 2;
+      const pad = logoSize * 0.15;
+      const rx = 6 * (vbSize / size);
+
+      // 로고 SVG의 viewBox로 스케일 계산
+      const logoVbMatch = logoSvg.match(/viewBox="([^"]*)"/);
+      const logoVb = logoVbMatch ? logoVbMatch[1].split(/\s+/).map(Number) : [0, 0, 100, 100];
+      const scaleX = logoSize / (logoVb[2] - logoVb[0]);
+      const scaleY = logoSize / (logoVb[3] - logoVb[1]);
+
+      // 로고 SVG 내부 콘텐츠 추출 (<svg> 태그 제거)
+      const innerMatch = logoSvg.match(/<svg[^>]*>([\s\S]*)<\/svg>/);
+      const logoInner = innerMatch ? innerMatch[1] : "";
+
+      const overlay =
+        `<rect x="${x - pad}" y="${y - pad}" width="${logoSize + pad * 2}" height="${logoSize + pad * 2}" rx="${rx}" fill="${colors.light}"/>` +
+        `<g transform="translate(${x},${y}) scale(${scaleX},${scaleY})">${logoInner}</g>`;
+
+      finalSvg = svgString.replace("</svg>", `${overlay}</svg>`);
+    } catch {
+      // 로고 로드 실패 시 QR만 표시
+    }
+  }
+
+  const blob = new Blob([finalSvg], { type: "image/svg+xml" });
   const dataUrl = URL.createObjectURL(blob);
   return { dataUrl, format: "svg", blob };
 }
@@ -105,7 +148,7 @@ export function QrPage() {
       if (fmt === "png") {
         setResult(await generatePng(targetText, sz, logo, colors));
       } else {
-        setResult(await generateSvg(targetText, sz, colors));
+        setResult(await generateSvg(targetText, sz, logo, colors));
       }
     } catch {
       toast.error("QR 코드 생성에 실패했습니다.");
@@ -261,14 +304,10 @@ export function QrPage() {
                 type="checkbox"
                 checked={withLogo}
                 onChange={(e) => setWithLogo(e.target.checked)}
-                disabled={format === "svg"}
                 className="accent-primary h-4 w-4"
               />
               BCSD 로고 삽입
             </Label>
-            {format === "svg" && withLogo && (
-              <p className="text-xs text-muted-foreground">SVG에는 로고를 삽입할 수 없습니다.</p>
-            )}
           </div>
         </div>
 
