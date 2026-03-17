@@ -50,18 +50,21 @@ async function renderQrToCanvas(
     const ctx = canvas.getContext("2d")!;
     try {
       const logo = await loadImage(LOGO_PATH);
-      const maxDim = size * 0.2;
-      const ratio = logo.naturalWidth / logo.naturalHeight;
-      const w = ratio >= 1 ? maxDim : maxDim * ratio;
-      const h = ratio >= 1 ? maxDim / ratio : maxDim;
-      const x = (canvas.width - w) / 2;
-      const y = (canvas.height - h) / 2;
-      const pad = maxDim * 0.08;
+      const boxSize = size * 0.28;
+      const pad = boxSize * 0.1;
+      const totalBox = boxSize + pad * 2;
+      const bx = (canvas.width - totalBox) / 2;
+      const by = (canvas.height - totalBox) / 2;
       ctx.fillStyle = colors.light;
       ctx.beginPath();
-      ctx.roundRect(x - pad, y - pad, w + pad * 2, h + pad * 2, 4);
+      ctx.roundRect(bx, by, totalBox, totalBox, 6);
       ctx.fill();
-      ctx.drawImage(logo, x, y, w, h);
+      const ratio = logo.naturalWidth / logo.naturalHeight;
+      const lw = ratio >= 1 ? boxSize : boxSize * ratio;
+      const lh = ratio >= 1 ? boxSize / ratio : boxSize;
+      const lx = bx + pad + (boxSize - lw) / 2;
+      const ly = by + pad + (boxSize - lh) / 2;
+      ctx.drawImage(logo, lx, ly, lw, lh);
     } catch {
       // 로고 로드 실패 시 QR만 표시
     }
@@ -94,33 +97,34 @@ async function generateSvg(text: string, size: number, withLogo: boolean, colors
     try {
       const logoSvg = await (await fetch(LOGO_PATH)).text();
 
-      // QR의 viewBox 좌표계 기준으로 계산
       const vbMatch = svgString.match(/viewBox="0 0 (\d+) (\d+)"/);
       const vbSize = vbMatch ? Number(vbMatch[1]) : size;
 
-      // 로고 원본 비율 유지
       const logoVbMatch = logoSvg.match(/viewBox="([^"]*)"/);
       const logoVb = logoVbMatch ? logoVbMatch[1].split(/\s+/).map(Number) : [0, 0, 100, 100];
       const logoNatW = logoVb[2] - logoVb[0];
       const logoNatH = logoVb[3] - logoVb[1];
       const ratio = logoNatW / logoNatH;
 
-      const maxDim = vbSize * 0.2;
-      const w = ratio >= 1 ? maxDim : maxDim * ratio;
-      const h = ratio >= 1 ? maxDim / ratio : maxDim;
-      const x = (vbSize - w) / 2;
-      const y = (vbSize - h) / 2;
-      const pad = maxDim * 0.08;
-      const rx = 4 * (vbSize / size);
+      const boxSize = vbSize * 0.28;
+      const pad = boxSize * 0.1;
+      const totalBox = boxSize + pad * 2;
+      const bx = (vbSize - totalBox) / 2;
+      const by = (vbSize - totalBox) / 2;
+      const rx = 6 * (vbSize / size);
 
-      const scale = w / logoNatW;
+      const lw = ratio >= 1 ? boxSize : boxSize * ratio;
+      const lh = ratio >= 1 ? boxSize / ratio : boxSize;
+      const lx = bx + pad + (boxSize - lw) / 2;
+      const ly = by + pad + (boxSize - lh) / 2;
+      const scale = lw / logoNatW;
 
       const innerMatch = logoSvg.match(/<svg[^>]*>([\s\S]*)<\/svg>/);
       const logoInner = innerMatch ? innerMatch[1] : "";
 
       const overlay =
-        `<rect x="${x - pad}" y="${y - pad}" width="${w + pad * 2}" height="${h + pad * 2}" rx="${rx}" fill="${colors.light}"/>` +
-        `<g transform="translate(${x},${y}) scale(${scale})">${logoInner}</g>`;
+        `<rect x="${bx}" y="${by}" width="${totalBox}" height="${totalBox}" rx="${rx}" fill="${colors.light}"/>` +
+        `<g transform="translate(${lx},${ly}) scale(${scale})">${logoInner}</g>`;
 
       finalSvg = svgString.replace("</svg>", `${overlay}</svg>`);
     } catch {
