@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { format } from "date-fns";
+import { ko } from "date-fns/locale";
+import { CalendarIcon, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -9,6 +12,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useCreateLink, useUpdateLink } from "@/hooks/use-links";
 import type { LinkDetail } from "@/types/link";
@@ -82,9 +92,10 @@ interface FormData {
   expires_at: string;
 }
 
-function toDatetimeLocal(iso: string | null | undefined): string {
-  if (!iso) return "";
-  return iso.slice(0, 16);
+function parseDate(iso: string | null | undefined): Date | undefined {
+  if (!iso) return undefined;
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? undefined : d;
 }
 
 function LinkForm({
@@ -102,7 +113,7 @@ function LinkForm({
   const [url, setUrl] = useState(editData?.url ?? "");
   const [code, setCode] = useState(editData?.code ?? "");
   const [description, setDescription] = useState(editData?.description ?? "");
-  const [expiresAt, setExpiresAt] = useState(toDatetimeLocal(editData?.expires_at));
+  const [expiresAt, setExpiresAt] = useState<Date | undefined>(parseDate(editData?.expires_at));
 
   const canSubmit = title.trim() && (isEdit || url.trim());
 
@@ -113,7 +124,7 @@ function LinkForm({
       url: url.trim(),
       code: code.trim(),
       description: description.trim(),
-      expires_at: expiresAt ? new Date(expiresAt).toISOString() : "",
+      expires_at: expiresAt ? expiresAt.toISOString() : "",
     });
   };
 
@@ -164,13 +175,38 @@ function LinkForm({
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="expires_at">만료일</Label>
-          <Input
-            id="expires_at"
-            type="datetime-local"
-            value={expiresAt}
-            onChange={(e) => setExpiresAt(e.target.value)}
-          />
+          <Label>만료일</Label>
+          <Popover>
+            <PopoverTrigger
+              className={cn(
+                "inline-flex h-9 w-full items-center justify-start rounded-md border border-input bg-transparent px-3 text-sm shadow-xs",
+                !expiresAt && "text-muted-foreground"
+              )}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {expiresAt ? format(expiresAt, "yyyy-MM-dd", { locale: ko }) : "만료일 선택"}
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                locale={ko}
+                selected={expiresAt}
+                onSelect={setExpiresAt}
+              />
+            </PopoverContent>
+          </Popover>
+          {expiresAt && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-auto p-0 text-xs text-muted-foreground"
+              onClick={() => setExpiresAt(undefined)}
+            >
+              <X className="mr-1 h-3 w-3" />
+              만료일 제거
+            </Button>
+          )}
         </div>
       </div>
       <DialogFooter className="mt-4">
