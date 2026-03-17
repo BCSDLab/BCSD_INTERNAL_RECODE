@@ -127,16 +127,16 @@ export function LinkSheet({ linkId, open, onOpenChange, onEdit }: LinkSheetProps
                   </DetailRow>
                   <Separator />
                   <DetailRow label="단축 URL">
-                    <button
-                      type="button"
-                      className="cursor-pointer text-blue-600 hover:underline"
+                    <Button
+                      variant="link"
+                      className="h-auto p-0 text-blue-600"
                       onClick={() => {
                         navigator.clipboard.writeText(shortUrl(detail.code));
                         toast.success("단축 URL이 복사되었습니다.");
                       }}
                     >
                       {shortUrl(detail.code)}
-                    </button>
+                    </Button>
                   </DetailRow>
                   <Separator />
                   <DetailRow label="상태">
