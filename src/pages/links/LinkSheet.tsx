@@ -76,6 +76,7 @@ export function LinkSheet({ linkId, open, onOpenChange, onEdit }: LinkSheetProps
     deleteMutation.mutate(linkId, {
       onSuccess: () => {
         toast.success("링크가 삭제되었습니다.");
+        setDeleteDialogOpen(false);
         onOpenChange(false);
       },
     });
