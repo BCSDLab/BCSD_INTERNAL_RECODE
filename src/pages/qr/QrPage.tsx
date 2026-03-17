@@ -50,15 +50,18 @@ async function renderQrToCanvas(
     const ctx = canvas.getContext("2d")!;
     try {
       const logo = await loadImage(LOGO_PATH);
-      const logoSize = size * 0.2;
-      const x = (canvas.width - logoSize) / 2;
-      const y = (canvas.height - logoSize) / 2;
-      const padding = logoSize * 0.15;
+      const maxDim = size * 0.2;
+      const ratio = logo.naturalWidth / logo.naturalHeight;
+      const w = ratio >= 1 ? maxDim : maxDim * ratio;
+      const h = ratio >= 1 ? maxDim / ratio : maxDim;
+      const x = (canvas.width - w) / 2;
+      const y = (canvas.height - h) / 2;
+      const pad = maxDim * 0.08;
       ctx.fillStyle = colors.light;
       ctx.beginPath();
-      ctx.roundRect(x - padding, y - padding, logoSize + padding * 2, logoSize + padding * 2, 6);
+      ctx.roundRect(x - pad, y - pad, w + pad * 2, h + pad * 2, 4);
       ctx.fill();
-      ctx.drawImage(logo, x, y, logoSize, logoSize);
+      ctx.drawImage(logo, x, y, w, h);
     } catch {
       // 로고 로드 실패 시 QR만 표시
     }
@@ -91,29 +94,33 @@ async function generateSvg(text: string, size: number, withLogo: boolean, colors
     try {
       const logoSvg = await (await fetch(LOGO_PATH)).text();
 
-      // QR의 viewBox 좌표계 기준으로 로고 크기/위치 계산
+      // QR의 viewBox 좌표계 기준으로 계산
       const vbMatch = svgString.match(/viewBox="0 0 (\d+) (\d+)"/);
       const vbSize = vbMatch ? Number(vbMatch[1]) : size;
 
-      const logoSize = vbSize * 0.2;
-      const x = (vbSize - logoSize) / 2;
-      const y = (vbSize - logoSize) / 2;
-      const pad = logoSize * 0.15;
-      const rx = 6 * (vbSize / size);
-
-      // 로고 SVG의 viewBox로 스케일 계산
+      // 로고 원본 비율 유지
       const logoVbMatch = logoSvg.match(/viewBox="([^"]*)"/);
       const logoVb = logoVbMatch ? logoVbMatch[1].split(/\s+/).map(Number) : [0, 0, 100, 100];
-      const scaleX = logoSize / (logoVb[2] - logoVb[0]);
-      const scaleY = logoSize / (logoVb[3] - logoVb[1]);
+      const logoNatW = logoVb[2] - logoVb[0];
+      const logoNatH = logoVb[3] - logoVb[1];
+      const ratio = logoNatW / logoNatH;
 
-      // 로고 SVG 내부 콘텐츠 추출 (<svg> 태그 제거)
+      const maxDim = vbSize * 0.2;
+      const w = ratio >= 1 ? maxDim : maxDim * ratio;
+      const h = ratio >= 1 ? maxDim / ratio : maxDim;
+      const x = (vbSize - w) / 2;
+      const y = (vbSize - h) / 2;
+      const pad = maxDim * 0.08;
+      const rx = 4 * (vbSize / size);
+
+      const scale = w / logoNatW;
+
       const innerMatch = logoSvg.match(/<svg[^>]*>([\s\S]*)<\/svg>/);
       const logoInner = innerMatch ? innerMatch[1] : "";
 
       const overlay =
-        `<rect x="${x - pad}" y="${y - pad}" width="${logoSize + pad * 2}" height="${logoSize + pad * 2}" rx="${rx}" fill="${colors.light}"/>` +
-        `<g transform="translate(${x},${y}) scale(${scaleX},${scaleY})">${logoInner}</g>`;
+        `<rect x="${x - pad}" y="${y - pad}" width="${w + pad * 2}" height="${h + pad * 2}" rx="${rx}" fill="${colors.light}"/>` +
+        `<g transform="translate(${x},${y}) scale(${scale})">${logoInner}</g>`;
 
       finalSvg = svgString.replace("</svg>", `${overlay}</svg>`);
     } catch {
