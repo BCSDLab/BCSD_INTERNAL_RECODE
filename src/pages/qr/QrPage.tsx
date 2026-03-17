@@ -58,7 +58,7 @@ async function buildSvgString(text: string, size: number, withLogo: boolean, col
     const logoNatH = logoVb[3] - logoVb[1];
     const ratio = logoNatW / logoNatH;
 
-    const boxSize = vbSize * 0.22;
+    const boxSize = vbSize * 0.26;
     const pad = boxSize * 0.06;
     const totalBox = boxSize + pad * 2;
     const bx = (vbSize - totalBox) / 2;
@@ -219,7 +219,7 @@ export function QrPage() {
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent alignItemWithTrigger={false}>
+              <SelectContent alignItemWithTrigger={false} className="min-w-0 w-(--anchor-width)">
                 <SelectItem value="png">PNG</SelectItem>
                 <SelectItem value="svg">SVG</SelectItem>
               </SelectContent>
