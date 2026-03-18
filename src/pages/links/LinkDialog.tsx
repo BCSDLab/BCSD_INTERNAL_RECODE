@@ -184,15 +184,33 @@ function LinkForm({
               )}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {expiresAt ? format(expiresAt, "yyyy-MM-dd", { locale: ko }) : "만료일 선택"}
+              {expiresAt ? format(expiresAt, "yyyy-MM-dd HH:mm", { locale: ko }) : "만료일 선택"}
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
                 locale={ko}
                 selected={expiresAt}
-                onSelect={setExpiresAt}
+                onSelect={(day) => {
+                  if (!day) return setExpiresAt(undefined);
+                  const prev = expiresAt ?? new Date();
+                  day.setHours(prev.getHours(), prev.getMinutes());
+                  setExpiresAt(new Date(day));
+                }}
               />
+              <div className="border-t px-3 py-2">
+                <Input
+                  type="time"
+                  value={expiresAt ? format(expiresAt, "HH:mm") : ""}
+                  onChange={(e) => {
+                    const [h, m] = e.target.value.split(":").map(Number);
+                    const next = new Date(expiresAt ?? new Date());
+                    next.setHours(h, m);
+                    setExpiresAt(new Date(next));
+                  }}
+                  className="h-8"
+                />
+              </div>
             </PopoverContent>
           </Popover>
           {expiresAt && (
