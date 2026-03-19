@@ -9,12 +9,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 import { useLogout, useMe } from "@/hooks/use-auth";
+import { useMember } from "@/hooks/use-members";
 import { cn } from "@/lib/utils";
 
 export function Sidebar() {
   const logout = useLogout();
   const me = useMe();
+  const member = useMember(me.data?.id ?? "");
   const navigate = useNavigate();
 
   return (
@@ -73,25 +76,31 @@ export function Sidebar() {
           <DropdownMenuTrigger className="flex w-full items-center gap-2 rounded-lg p-2 text-left text-sm hover:bg-accent/50 data-[popup-open]:bg-accent">
             <Avatar className="h-8 w-8 rounded-lg">
               <AvatarFallback className="rounded-lg bg-primary text-primary-foreground text-xs">
-                {me.data?.email?.charAt(0).toUpperCase() ?? "?"}
+                {member.data?.name?.charAt(0) ?? me.data?.email?.charAt(0).toUpperCase() ?? "?"}
               </AvatarFallback>
             </Avatar>
             <div className="grid flex-1 leading-tight">
-              <span className="truncate font-medium">{me.data?.email?.split("@")[0] ?? "..."}</span>
-              <span className="truncate text-xs text-muted-foreground">{me.data?.email ?? ""}</span>
+              <span className="truncate font-medium">{member.data?.name ?? "..."}</span>
+              <span className="truncate text-xs text-muted-foreground">{member.data?.track ?? ""}</span>
             </div>
             <ChevronsUpDown className="ml-auto h-4 w-4 text-muted-foreground" />
           </DropdownMenuTrigger>
           <DropdownMenuContent side="top" align="start" className="w-56 rounded-lg">
-            <div className="flex items-center gap-2 px-2 py-1.5 text-left text-sm">
-              <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarFallback className="rounded-lg bg-primary text-primary-foreground text-xs">
-                  {me.data?.email?.charAt(0).toUpperCase() ?? "?"}
-                </AvatarFallback>
-              </Avatar>
-              <div className="grid flex-1 leading-tight">
-                <span className="truncate font-medium">{me.data?.email?.split("@")[0] ?? "..."}</span>
-                <span className="truncate text-xs text-muted-foreground">{me.data?.email ?? ""}</span>
+            <div className="px-2 py-2 text-sm">
+              <div className="flex items-center gap-2">
+                <Avatar className="h-8 w-8 rounded-lg">
+                  <AvatarFallback className="rounded-lg bg-primary text-primary-foreground text-xs">
+                    {member.data?.name?.charAt(0) ?? "?"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="grid flex-1 leading-tight">
+                  <span className="truncate font-medium">{member.data?.name ?? "..."}</span>
+                  <span className="truncate text-xs text-muted-foreground">{me.data?.email ?? ""}</span>
+                </div>
+              </div>
+              <div className="mt-2 flex items-center gap-1.5">
+                <Badge variant="outline" className="text-xs">{member.data?.track ?? ""}</Badge>
+                <Badge variant="secondary" className="text-xs">{member.data?.status ?? ""}</Badge>
               </div>
             </div>
             <DropdownMenuSeparator />
