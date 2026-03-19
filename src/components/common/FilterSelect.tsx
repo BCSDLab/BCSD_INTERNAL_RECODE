@@ -2,28 +2,37 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 
-const ALL_SENTINEL = "__ALL__";
+interface FilterSelectOption {
+  value: string;
+  label: string;
+}
 
 interface FilterSelectProps {
   value: string;
   allLabel: string;
-  options: { value: string; label: string }[] | undefined;
+  options: FilterSelectOption[] | undefined;
   onValueChange: (value: string) => void;
   className?: string;
 }
 
 export function FilterSelect({ value, allLabel, options, onValueChange, className }: FilterSelectProps) {
+  const allOptions: FilterSelectOption[] = [
+    { value: "", label: allLabel },
+    ...(options ?? []),
+  ];
+
+  const displayLabel = allOptions.find((o) => o.value === value)?.label ?? allLabel;
+
   return (
     <Select
-      value={value || ALL_SENTINEL}
-      onValueChange={(v) => onValueChange(v === ALL_SENTINEL ? "" : v ?? "")}
+      value={value}
+      onValueChange={(v) => onValueChange(v ?? "")}
     >
       <SelectTrigger className={className ?? "w-36"}>
-        <SelectValue />
+        <SelectValue placeholder={allLabel}>{displayLabel}</SelectValue>
       </SelectTrigger>
       <SelectContent alignItemWithTrigger={false} className="min-w-0 w-(--anchor-width)">
-        <SelectItem value={ALL_SENTINEL}>{allLabel}</SelectItem>
-        {options?.map((opt) => (
+        {allOptions.map((opt) => (
           <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
         ))}
       </SelectContent>
