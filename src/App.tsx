@@ -5,6 +5,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { LoginPage } from "@/pages/login/LoginPage";
 import { RegisterPage } from "@/pages/register/RegisterPage";
 import { MembersPage } from "@/pages/members/MembersPage";
+import { MemberDetailPage } from "@/pages/members/MemberDetailPage";
 import { LinksPage } from "@/pages/links/LinksPage";
 import { QrPage } from "@/pages/qr/QrPage";
 import { ExpiredPage } from "@/pages/expired/ExpiredPage";
@@ -21,6 +22,7 @@ export default function App() {
         <Route element={<AppLayout />}>
           <Route element={<ProtectedRoute />}>
             <Route path="/members" element={<MembersPage />} />
+            <Route path="/members/:memberId" element={<MemberDetailPage />} />
             <Route path="/links" element={<LinksPage />} />
             <Route path="/qr" element={<QrPage />} />
           </Route>
