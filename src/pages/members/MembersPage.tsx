@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
-import { useMembers, useMemberFilters } from "@/hooks/use-members";
+import { useMembersWithFilters } from "@/hooks/use-members";
 import { useDebounce } from "@/hooks/use-debounce";
 import type { MemberFilterInput } from "@/types/common";
 
@@ -76,8 +76,9 @@ export function MembersPage() {
     ...(debouncedName && { name: debouncedName }),
   };
 
-  const { data: filterOptions } = useMemberFilters();
-  const { data, isLoading, isError } = useMembers(filter);
+  const { data: result, isLoading, isError } = useMembersWithFilters(filter);
+  const data = result?.members;
+  const filterOptions = result?.memberFilters;
 
   const updateParam = (key: string, value: string) => {
     const next = new URLSearchParams(searchParams);

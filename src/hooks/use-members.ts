@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { getMembers, getMember, getMemberFilters } from "@/api/members";
+import { getMembersWithFilters, getMember, getMemberFilters } from "@/api/members";
 import type { MemberFilterInput } from "@/types/common";
 
-export function useMembers(filter: MemberFilterInput) {
+export function useMembersWithFilters(filter: MemberFilterInput) {
   return useQuery({
     queryKey: ["members", filter],
-    queryFn: () => getMembers(filter),
+    queryFn: () => getMembersWithFilters(filter),
   });
 }
 

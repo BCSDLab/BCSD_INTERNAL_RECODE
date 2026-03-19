@@ -3,13 +3,24 @@ import { gqlClient } from "./graphql-client";
 import type { MemberResponse, MemberDetail } from "@/types/member";
 import type { PagedResponse, MemberFilterInput, MemberFilters } from "@/types/common";
 
-const MEMBERS_QUERY = gql`
-  query Members($filter: MemberFilterInput) {
+const MEMBERS_WITH_FILTERS_QUERY = gql`
+  query MembersWithFilters($filter: MemberFilterInput) {
     members(filter: $filter) {
       items {
         id name email status track team paymentStatus
       }
       total page size
+    }
+    memberFilters {
+      tracks statuses paymentStatuses
+    }
+  }
+`;
+
+const MEMBER_FILTERS_QUERY = gql`
+  query MemberFilters {
+    memberFilters {
+      tracks statuses paymentStatuses
     }
   }
 `;
@@ -23,22 +34,25 @@ const MEMBER_QUERY = gql`
   }
 `;
 
-const MEMBER_FILTERS_QUERY = gql`
-  query MemberFilters {
-    memberFilters {
-      tracks statuses paymentStatuses
-    }
-  }
-`;
+interface MembersWithFiltersResult {
+  members: PagedResponse<MemberResponse>;
+  memberFilters: MemberFilters;
+}
 
-export async function getMembers(
+export async function getMembersWithFilters(
   filter: MemberFilterInput,
-): Promise<PagedResponse<MemberResponse>> {
-  const data = await gqlClient.request<{ members: PagedResponse<MemberResponse> }>(
-    MEMBERS_QUERY,
+): Promise<MembersWithFiltersResult> {
+  return gqlClient.request<MembersWithFiltersResult>(
+    MEMBERS_WITH_FILTERS_QUERY,
     { filter },
   );
-  return data.members;
+}
+
+export async function getMemberFilters(): Promise<MemberFilters> {
+  const data = await gqlClient.request<{ memberFilters: MemberFilters }>(
+    MEMBER_FILTERS_QUERY,
+  );
+  return data.memberFilters;
 }
 
 export async function getMember(memberId: string): Promise<MemberDetail> {
@@ -47,11 +61,4 @@ export async function getMember(memberId: string): Promise<MemberDetail> {
     { id: memberId },
   );
   return data.member;
-}
-
-export async function getMemberFilters(): Promise<MemberFilters> {
-  const data = await gqlClient.request<{ memberFilters: MemberFilters }>(
-    MEMBER_FILTERS_QUERY,
-  );
-  return data.memberFilters;
 }
