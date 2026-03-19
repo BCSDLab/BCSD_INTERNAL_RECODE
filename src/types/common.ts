@@ -16,6 +16,11 @@ export interface MemberFilters {
   paymentStatuses: string[];
 }
 
+export interface SortFieldInput {
+  field: string;
+  order: string;
+}
+
 export interface MemberFilterInput {
   status?: string;
   track?: string;
@@ -24,6 +29,5 @@ export interface MemberFilterInput {
   name?: string;
   page?: number;
   size?: number;
-  sortBy?: string;
-  sortOrder?: string;
+  sorts?: SortFieldInput[];
 }

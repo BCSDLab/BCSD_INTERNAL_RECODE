@@ -39,6 +39,7 @@ export function LinksPage() {
   const filter: LinkFilterInput = {
     page,
     size: PAGE_SIZE,
+    ...(sorts.length > 0 && { sorts: sorts.map((s) => ({ field: s.field, order: s.direction })) }),
     ...(filters.creator_id && { creatorId: filters.creator_id }),
     ...(filters.expired && { expired: filters.expired }),
   };

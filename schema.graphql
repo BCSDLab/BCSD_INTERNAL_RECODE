@@ -114,11 +114,15 @@ type LinkFilters {
 
 # === Inputs ===
 
+input SortFieldInput {
+  field: String!
+  order: String!
+}
+
 input MemberFilterInput {
-  page: Int = 1
-  size: Int = 20
-  sortBy: String = "id"
-  sortOrder: String = "asc"
+  page: Int! = 1
+  size: Int! = 20
+  sorts: [SortFieldInput!]
   status: String
   track: String
   team: String
@@ -127,10 +131,9 @@ input MemberFilterInput {
 }
 
 input LinkFilterInput {
-  page: Int = 1
-  size: Int = 20
-  sortBy: String = "id"
-  sortOrder: String = "asc"
+  page: Int! = 1
+  size: Int! = 20
+  sorts: [SortFieldInput!]
   creatorId: String
   expired: String
 }

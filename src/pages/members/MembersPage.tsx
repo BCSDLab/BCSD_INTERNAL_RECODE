@@ -25,6 +25,7 @@ export function MembersPage() {
   const filter: MemberFilterInput = {
     page,
     size: PAGE_SIZE,
+    ...(sorts.length > 0 && { sorts: sorts.map((s) => ({ field: s.field, order: s.direction })) }),
     ...(filters.name && { name: filters.name }),
     ...(filters.track && { track: filters.track }),
     ...(filters.status && { status: filters.status }),
