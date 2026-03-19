@@ -5,7 +5,6 @@ export interface MemberResponse {
   status: string;
   track: string;
   team: string;
-  paymentStatus: string;
   department: string;
   studentId: string;
   phone: string;

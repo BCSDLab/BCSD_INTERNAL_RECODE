@@ -13,7 +13,6 @@ export interface ApiError {
 export interface MemberFilters {
   tracks: string[];
   statuses: string[];
-  paymentStatuses: string[];
 }
 
 export interface SortFieldInput {
@@ -25,7 +24,6 @@ export interface MemberFilterInput {
   status?: string;
   track?: string;
   team?: string;
-  paymentStatus?: string;
   name?: string;
   email?: string;
   department?: string;

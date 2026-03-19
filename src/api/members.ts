@@ -7,12 +7,12 @@ const MEMBERS_WITH_FILTERS_QUERY = gql`
   query MembersWithFilters($filter: MemberFilterInput) {
     members(filter: $filter) {
       items {
-        id name email status track paymentStatus department studentId phone
+        id name email status track department studentId phone
       }
       total page size
     }
     memberFilters {
-      tracks statuses paymentStatuses
+      tracks statuses
     }
   }
 `;
@@ -20,7 +20,7 @@ const MEMBERS_WITH_FILTERS_QUERY = gql`
 const MEMBER_FILTERS_QUERY = gql`
   query MemberFilters {
     memberFilters {
-      tracks statuses paymentStatuses
+      tracks statuses
     }
   }
 `;
@@ -28,8 +28,7 @@ const MEMBER_FILTERS_QUERY = gql`
 const MEMBER_QUERY = gql`
   query Member($id: ID!) {
     member(id: $id) {
-      id name email status track team paymentStatus
-      department studentId schoolEmail phone joinDate lastUpdated
+      id name email status track team department studentId schoolEmail phone joinDate lastUpdated
     }
   }
 `;

@@ -11,7 +11,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { DetailRow } from "@/components/common/DetailRow";
 import { useMember } from "@/hooks/use-members";
-import { paymentVariant } from "@/lib/format";
 
 interface MemberSheetProps {
   memberId: string | null;
@@ -69,12 +68,6 @@ export function MemberSheet({ memberId, open, onOpenChange }: MemberSheetProps) 
                 <DetailRow label="전화번호">{member.phone}</DetailRow>
                 <Separator />
                 <DetailRow label="트랙">{member.track}</DetailRow>
-                <Separator />
-                <DetailRow label="납부 상태">
-                  <Badge variant={paymentVariant(member.paymentStatus)}>
-                    {member.paymentStatus}
-                  </Badge>
-                </DetailRow>
                 <Separator />
                 <DetailRow label="가입일">{member.joinDate}</DetailRow>
               </dl>

@@ -10,11 +10,3 @@ export function statusVariant(status: string) {
     default: return "secondary" as const;
   }
 }
-
-export function paymentVariant(status: string) {
-  switch (status) {
-    case "Paid": return "default" as const;
-    case "Unpaid": return "destructive" as const;
-    default: return "secondary" as const;
-  }
-}
