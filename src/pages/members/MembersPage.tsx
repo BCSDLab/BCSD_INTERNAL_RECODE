@@ -16,7 +16,7 @@ const FILTER_KEYS = ["name", "track", "status", "payment_status"];
 export function MembersPage() {
   const {
     searchParams, page, sorts, getFilters,
-    toggleSort, setFilter, setPage, setParam, deleteParam,
+    setSort, setFilter, setPage, setParam, deleteParam,
   } = useTableState();
 
   const selectedMemberId = searchParams.get("member");
@@ -97,7 +97,7 @@ export function MembersPage() {
         isLoading={isLoading}
         sorts={sorts}
         filters={filters}
-        onToggleSort={toggleSort}
+        onSort={setSort}
         onFilterChange={setFilter}
         onRowClick={(m) => setParam("member", m.id)}
         rowKey={(m) => m.id}

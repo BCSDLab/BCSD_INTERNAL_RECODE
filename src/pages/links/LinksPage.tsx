@@ -27,7 +27,7 @@ function isLinkExpired(link: { expiredAt: string | null; expiresAt: string | nul
 export function LinksPage() {
   const {
     searchParams, page, sorts, getFilters,
-    toggleSort, setFilter, setPage, setParam, deleteParam,
+    setSort, setFilter, setPage, setParam, deleteParam,
   } = useTableState();
 
   const selectedLinkId = searchParams.get("link");
@@ -142,7 +142,7 @@ export function LinksPage() {
         isLoading={isLoading}
         sorts={sorts}
         filters={filters}
-        onToggleSort={toggleSort}
+        onSort={setSort}
         onFilterChange={setFilter}
         onRowClick={(l) => setParam("link", l.id)}
         rowKey={(l) => l.id}

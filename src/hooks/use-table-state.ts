@@ -35,18 +35,18 @@ export function useTableState() {
     [searchParams],
   );
 
-  const toggleSort = useCallback(
-    (field: string) => {
+  const setSort = useCallback(
+    (field: string, direction: SortDirection | null) => {
       const next = new URLSearchParams(searchParams);
       const currentSorts = parseSorts(next.get("sort") ?? "");
       const idx = currentSorts.findIndex((s) => s.field === field);
 
-      if (idx === -1) {
-        currentSorts.push({ field, direction: "asc" });
-      } else if (currentSorts[idx].direction === "asc") {
-        currentSorts[idx].direction = "desc";
+      if (direction === null) {
+        if (idx !== -1) currentSorts.splice(idx, 1);
+      } else if (idx === -1) {
+        currentSorts.push({ field, direction });
       } else {
-        currentSorts.splice(idx, 1);
+        currentSorts[idx].direction = direction;
       }
 
       const serialized = serializeSorts(currentSorts);
@@ -111,7 +111,7 @@ export function useTableState() {
     page,
     sorts,
     getFilters,
-    toggleSort,
+    setSort,
     setFilter,
     setPage,
     setParam,

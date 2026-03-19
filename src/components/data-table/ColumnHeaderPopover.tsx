@@ -1,10 +1,11 @@
 import { useState } from "react";
 import {
-  ArrowUp, ArrowDown, X, ListFilter, ArrowUpDown,
+  ArrowUp, ArrowDown, ListFilter, ArrowUpDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Popover, PopoverContent, PopoverTrigger,
 } from "@/components/ui/popover";
@@ -17,7 +18,7 @@ interface ColumnHeaderPopoverProps {
   sortable?: boolean;
   currentSort?: SortDirection;
   sortPriority?: number;
-  onToggleSort?: () => void;
+  onSort?: (direction: SortDirection | null) => void;
   filterType?: ColumnFilterType;
   filterValue?: string;
   filterOptions?: EnumFilterOption[];
@@ -26,18 +27,18 @@ interface ColumnHeaderPopoverProps {
 
 function SortSection({
   currentSort,
-  onToggleSort,
+  onSort,
 }: {
   currentSort?: SortDirection;
-  onToggleSort: () => void;
+  onSort: (direction: SortDirection | null) => void;
 }) {
   return (
     <div className="flex items-center gap-1">
       <Button
         variant={currentSort === "asc" ? "default" : "ghost"}
         size="sm"
-        className="h-7 flex-1 gap-1 text-xs"
-        onClick={onToggleSort}
+        className="h-6 flex-1 gap-1 text-xs"
+        onClick={() => onSort(currentSort === "asc" ? null : "asc")}
       >
         <ArrowUp className="h-3 w-3" />
         오름차순
@@ -45,24 +46,19 @@ function SortSection({
       <Button
         variant={currentSort === "desc" ? "default" : "ghost"}
         size="sm"
-        className="h-7 flex-1 gap-1 text-xs"
-        onClick={onToggleSort}
+        className="h-6 flex-1 gap-1 text-xs"
+        onClick={() => onSort(currentSort === "desc" ? null : "desc")}
       >
         <ArrowDown className="h-3 w-3" />
         내림차순
       </Button>
-      {currentSort && (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 w-7 p-0"
-          onClick={onToggleSort}
-        >
-          <X className="h-3 w-3" />
-        </Button>
-      )}
     </div>
   );
+}
+
+function parseMultiValue(value: string): Set<string> {
+  if (!value) return new Set();
+  return new Set(value.split(","));
 }
 
 function EnumFilter({
@@ -74,30 +70,31 @@ function EnumFilter({
   options: EnumFilterOption[];
   onChange: (value: string) => void;
 }) {
+  const selected = parseMultiValue(value);
+
+  const toggle = (v: string) => {
+    const next = new Set(selected);
+    if (next.has(v)) {
+      next.delete(v);
+    } else {
+      next.add(v);
+    }
+    onChange([...next].join(","));
+  };
+
   return (
-    <div className="flex flex-col gap-0.5">
-      <button
-        type="button"
-        className={cn(
-          "rounded px-2 py-1 text-left text-xs",
-          !value ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
-        )}
-        onClick={() => onChange("")}
-      >
-        전체
-      </button>
+    <div className="flex max-h-40 flex-col gap-0.5 overflow-y-auto">
       {options.map((opt) => (
-        <button
+        <label
           key={opt.value}
-          type="button"
-          className={cn(
-            "rounded px-2 py-1 text-left text-xs",
-            value === opt.value ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
-          )}
-          onClick={() => onChange(value === opt.value ? "" : opt.value)}
+          className="flex cursor-pointer items-center gap-1.5 rounded px-1.5 py-0.5 text-xs hover:bg-accent/50"
         >
+          <Checkbox
+            checked={selected.has(opt.value)}
+            onCheckedChange={() => toggle(opt.value)}
+          />
           {opt.label}
-        </button>
+        </label>
       ))}
     </div>
   );
@@ -113,7 +110,6 @@ function TextFilter({
   const [input, setInput] = useState(value);
   const debouncedInput = useDebounce(input, 300);
 
-  // Sync debounced value to parent
   if (debouncedInput !== value) {
     onChange(debouncedInput);
   }
@@ -133,7 +129,7 @@ export function ColumnHeaderPopover({
   sortable,
   currentSort,
   sortPriority,
-  onToggleSort,
+  onSort,
   filterType = "none",
   filterValue,
   filterOptions,
@@ -160,19 +156,21 @@ export function ColumnHeaderPopover({
         )}
       >
         {header}
-        {currentSort === "asc" && <ArrowUp className="h-3 w-3" />}
-        {currentSort === "desc" && <ArrowDown className="h-3 w-3" />}
+        <span className="inline-flex w-4 items-center justify-center">
+          {currentSort === "asc" && <ArrowUp className="h-3 w-3" />}
+          {currentSort === "desc" && <ArrowDown className="h-3 w-3" />}
+          {!currentSort && isFilterActive && <ListFilter className="h-3 w-3" />}
+          {!currentSort && !isFilterActive && sortable && <ArrowUpDown className="h-3 w-3 opacity-30" />}
+        </span>
         {sortPriority && sortPriority > 1 && (
           <span className="text-[10px] text-muted-foreground">{sortPriority}</span>
         )}
-        {!currentSort && isFilterActive && <ListFilter className="h-3 w-3" />}
-        {!currentSort && !isFilterActive && sortable && <ArrowUpDown className="h-3 w-3 opacity-0 group-hover/th:opacity-50" />}
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-48 p-2" side="bottom">
-        {sortable && onToggleSort && (
-          <SortSection currentSort={currentSort} onToggleSort={onToggleSort} />
+      <PopoverContent align="start" className="w-48 p-1.5" side="bottom">
+        {sortable && onSort && (
+          <SortSection currentSort={currentSort} onSort={onSort} />
         )}
-        {sortable && hasFilter && <Separator className="my-2" />}
+        {sortable && hasFilter && <Separator className="my-1" />}
         {filterType === "enum" && filterOptions && onFilterChange && (
           <EnumFilter
             value={filterValue ?? ""}
@@ -187,7 +185,7 @@ export function ColumnHeaderPopover({
           />
         )}
         {filterType === "date" && (
-          <p className="text-xs text-muted-foreground">날짜 필터 (준비 중)</p>
+          <p className="py-1 text-xs text-muted-foreground">날짜 필터 (준비 중)</p>
         )}
       </PopoverContent>
     </Popover>

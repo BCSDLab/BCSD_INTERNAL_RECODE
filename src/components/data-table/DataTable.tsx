@@ -3,7 +3,7 @@ import {
 } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/common/TableSkeleton";
 import { ColumnHeaderPopover } from "./ColumnHeaderPopover";
-import type { ColumnDef, SortItem } from "@/types/data-table";
+import type { ColumnDef, SortItem, SortDirection } from "@/types/data-table";
 
 interface DataTableProps<TData> {
   columns: ColumnDef<TData>[];
@@ -11,7 +11,7 @@ interface DataTableProps<TData> {
   isLoading?: boolean;
   sorts: SortItem[];
   filters: Record<string, string>;
-  onToggleSort: (field: string) => void;
+  onSort: (field: string, direction: SortDirection | null) => void;
   onFilterChange: (key: string, value: string) => void;
   onRowClick?: (row: TData) => void;
   rowKey: (row: TData) => string;
@@ -24,7 +24,7 @@ export function DataTable<TData>({
   isLoading,
   sorts,
   filters,
-  onToggleSort,
+  onSort,
   onFilterChange,
   onRowClick,
   rowKey,
@@ -47,7 +47,7 @@ export function DataTable<TData>({
                     sortable={col.sortable}
                     currentSort={currentSort}
                     sortPriority={sortIdx !== -1 ? sortIdx + 1 : undefined}
-                    onToggleSort={() => onToggleSort(col.id)}
+                    onSort={(dir) => onSort(col.id, dir)}
                     filterType={col.filterType}
                     filterValue={filters[filterKey]}
                     filterOptions={col.filterOptions}
