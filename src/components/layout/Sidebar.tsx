@@ -84,7 +84,7 @@ export function Sidebar() {
                 {member.data?.name ?? "..."}
                 {member.data?.track && <span className="font-normal text-muted-foreground"> · {member.data.track}</span>}
               </span>
-              <span className="truncate text-xs text-muted-foreground">{me.data?.email ?? ""}</span>
+              <span className="truncate text-xs text-muted-foreground">{member.data?.status ?? ""}</span>
             </div>
             <ChevronsUpDown className="ml-auto h-4 w-4 text-muted-foreground" />
           </DropdownMenuTrigger>
