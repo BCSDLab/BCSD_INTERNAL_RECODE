@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParamState } from "@/hooks/use-search-param-state";
 import {
   Select,
   SelectContent,
@@ -49,9 +49,8 @@ function formatDate(iso: string) {
 }
 
 export function LinksPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { searchParams, page, updateParam, setParam, deleteParam } = useSearchParamState();
 
-  const page = Number(searchParams.get("page") ?? "1");
   const creatorId = searchParams.get("creator_id") ?? "";
   const expired = searchParams.get("expired") ?? "";
   const selectedLinkId = searchParams.get("link");
@@ -75,16 +74,6 @@ export function LinksPage() {
     return map;
   }, [filterOptions]);
 
-  const updateParam = (key: string, value: string) => {
-    const next = new URLSearchParams(searchParams);
-    if (value) {
-      next.set(key, value);
-    } else {
-      next.delete(key);
-    }
-    next.set("page", "1");
-    setSearchParams(next);
-  };
 
   const totalPages = data ? Math.ceil(data.total / PAGE_SIZE) : 0;
   const hasFilters = creatorId || expired;
@@ -170,11 +159,7 @@ export function LinksPage() {
                   <TableRow
                     key={link.id}
                     className="cursor-pointer"
-                    onClick={() => {
-                      const next = new URLSearchParams(searchParams);
-                      next.set("link", link.id);
-                      setSearchParams(next);
-                    }}
+                    onClick={() => setParam("link", link.id)}
                   >
                     <TableCell className="font-medium">{link.title}</TableCell>
                     <TableCell>
@@ -230,11 +215,7 @@ export function LinksPage() {
         linkId={selectedLinkId}
         open={!!selectedLinkId}
         onOpenChange={(open) => {
-          if (!open) {
-            const next = new URLSearchParams(searchParams);
-            next.delete("link");
-            setSearchParams(next);
-          }
+          if (!open) deleteParam("link");
         }}
         onEdit={(detail) => {
           setEditData(detail);
