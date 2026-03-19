@@ -42,26 +42,8 @@ export function MembersPage() {
 
   const columns: ColumnDef<MemberResponse>[] = [
     {
-      id: "name",
-      header: "이름",
-      cell: (m) => <span className="font-medium">{m.name}</span>,
-      sortable: true,
-      filterType: "text",
-      filterParamKey: "name",
-      className: "w-24",
-    },
-    {
-      id: "email",
-      header: "이메일",
-      cell: (m) => m.email,
-      sortable: true,
-      filterType: "text",
-      filterParamKey: "email",
-      className: "w-48",
-    },
-    {
       id: "track",
-      header: "트랙",
+      header: "Track",
       cell: (m) => m.track,
       sortable: true,
       filterType: "enum",
@@ -71,7 +53,7 @@ export function MembersPage() {
     },
     {
       id: "status",
-      header: "상태",
+      header: "구분",
       cell: (m) => <Badge variant={statusVariant(m.status)}>{m.status}</Badge>,
       sortable: true,
       filterType: "enum",
@@ -80,8 +62,17 @@ export function MembersPage() {
       className: "w-24",
     },
     {
+      id: "name",
+      header: "이름",
+      cell: (m) => <span className="font-medium">{m.name}</span>,
+      sortable: true,
+      filterType: "text",
+      filterParamKey: "name",
+      className: "w-24",
+    },
+    {
       id: "department",
-      header: "학부",
+      header: "학부(학과)",
       cell: (m) => m.department ?? "-",
       sortable: true,
       filterType: "text",
@@ -105,6 +96,15 @@ export function MembersPage() {
       filterType: "text",
       filterParamKey: "phone",
       className: "w-32",
+    },
+    {
+      id: "email",
+      header: "이메일(Google)",
+      cell: (m) => m.email,
+      sortable: true,
+      filterType: "text",
+      filterParamKey: "email",
+      className: "w-48",
     },
   ];
 
