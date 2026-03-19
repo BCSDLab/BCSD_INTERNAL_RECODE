@@ -16,10 +16,7 @@ const ME_QUERY = gql`
   query Me {
     me {
       id email
-      member {
-        name status track team paymentStatus
-        department studentId schoolEmail phone
-      }
+      member { name status track }
     }
   }
 `;

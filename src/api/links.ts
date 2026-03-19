@@ -10,21 +10,23 @@ import type {
 } from "@/types/link";
 import type { PagedResponse } from "@/types/common";
 
-const LINK_FIELDS = `id code title url creatorId createdAt updatedAt description expiresAt expiredAt`;
-
 const LINKS_QUERY = gql`
   query Links($filter: LinkFilterInput) {
     links(filter: $filter) {
-      items { ${LINK_FIELDS} }
+      items {
+        id code title creatorId createdAt expiresAt expiredAt
+      }
       total page size
     }
   }
 `;
 
+const LINK_DETAIL_FIELDS = `id code title url creatorId createdAt updatedAt description expiresAt expiredAt`;
+
 const LINK_QUERY = gql`
   query Link($id: ID!) {
     link(id: $id) {
-      ${LINK_FIELDS}
+      ${LINK_DETAIL_FIELDS}
       totalClicks
       dailyClicks { date count }
     }
@@ -42,19 +44,19 @@ const LINK_FILTERS_QUERY = gql`
 
 const CREATE_LINK = gql`
   mutation CreateLink($input: CreateLinkInput!) {
-    createLink(input: $input) { ${LINK_FIELDS} }
+    createLink(input: $input) { id code }
   }
 `;
 
 const UPDATE_LINK = gql`
   mutation UpdateLink($id: ID!, $input: UpdateLinkInput!) {
-    updateLink(id: $id, input: $input) { ${LINK_FIELDS} }
+    updateLink(id: $id, input: $input) { id }
   }
 `;
 
 const TOGGLE_LINK = gql`
   mutation ToggleLink($id: ID!) {
-    toggleLink(id: $id) { ${LINK_FIELDS} }
+    toggleLink(id: $id) { id }
   }
 `;
 

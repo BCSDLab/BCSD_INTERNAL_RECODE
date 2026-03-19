@@ -11,12 +11,6 @@ export interface MeMember {
   name: string;
   status: string;
   track: string;
-  team: string;
-  paymentStatus: string;
-  department: string;
-  studentId: string;
-  schoolEmail: string;
-  phone: string;
 }
 
 export interface MeResponse {
