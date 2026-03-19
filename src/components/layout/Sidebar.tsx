@@ -80,11 +80,8 @@ export function Sidebar() {
               </AvatarFallback>
             </Avatar>
             <div className="grid flex-1 leading-tight">
-              <span className="truncate font-medium">
-                {member.data?.name ?? "..."}
-                {member.data?.track && <span className="font-normal text-muted-foreground"> · {member.data.track}</span>}
-              </span>
-              <span className="truncate text-xs text-muted-foreground">{member.data?.status ?? ""}</span>
+              <span className="truncate text-xs text-muted-foreground">{member.data?.track ?? ""}</span>
+              <span className="truncate font-medium">{member.data?.name ?? "..."}</span>
             </div>
             <ChevronsUpDown className="ml-auto h-4 w-4 text-muted-foreground" />
           </DropdownMenuTrigger>
