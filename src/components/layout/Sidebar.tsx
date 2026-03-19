@@ -11,14 +11,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { useLogout, useMe } from "@/hooks/use-auth";
-import { useMember } from "@/hooks/use-members";
 import { cn } from "@/lib/utils";
 
 export function Sidebar() {
   const logout = useLogout();
   const me = useMe();
-  const member = useMember(me.data?.id ?? "");
   const navigate = useNavigate();
+  const member = me.data?.member;
 
   return (
     <aside className="flex h-svh w-60 flex-col border-r bg-background">
@@ -77,15 +76,15 @@ export function Sidebar() {
           <DropdownMenuTrigger className="flex w-full items-center gap-2 rounded-lg p-2 text-left text-sm hover:bg-accent/50 data-[popup-open]:bg-accent">
             <Avatar className="h-8 w-8 rounded-lg">
               <AvatarFallback className="rounded-lg bg-primary text-primary-foreground text-xs">
-                {member.data?.name?.charAt(0) ?? me.data?.email?.charAt(0).toUpperCase() ?? "?"}
+                {member?.name?.charAt(0) ?? me.data?.email?.charAt(0).toUpperCase() ?? "?"}
               </AvatarFallback>
             </Avatar>
             <div className="grid flex-1 leading-tight">
               <span className="truncate font-medium">
-                {member.data?.name ?? "..."}
-                {member.data?.status && <span className="font-normal text-muted-foreground"> · {member.data.status}</span>}
+                {member?.name ?? "..."}
+                {member?.status && <span className="font-normal text-muted-foreground"> · {member.status}</span>}
               </span>
-              <span className="truncate text-xs text-muted-foreground">{member.data?.track ?? ""}</span>
+              <span className="truncate text-xs text-muted-foreground">{member?.track ?? ""}</span>
             </div>
             <ChevronsUpDown className="ml-auto h-4 w-4 text-muted-foreground" />
           </DropdownMenuTrigger>
@@ -94,17 +93,17 @@ export function Sidebar() {
               <div className="flex items-center gap-2">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarFallback className="rounded-lg bg-primary text-primary-foreground text-xs">
-                    {member.data?.name?.charAt(0) ?? "?"}
+                    {member?.name?.charAt(0) ?? "?"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 leading-tight">
-                  <span className="truncate font-medium">{member.data?.name ?? "..."}</span>
+                  <span className="truncate font-medium">{member?.name ?? "..."}</span>
                   <span className="truncate text-xs text-muted-foreground">{me.data?.email ?? ""}</span>
                 </div>
               </div>
               <div className="mt-2 flex items-center gap-1.5">
-                <Badge variant="outline" className="text-xs">{member.data?.track ?? ""}</Badge>
-                <Badge variant="secondary" className="text-xs">{member.data?.status ?? ""}</Badge>
+                <Badge variant="outline" className="text-xs">{member?.track ?? ""}</Badge>
+                <Badge variant="secondary" className="text-xs">{member?.status ?? ""}</Badge>
               </div>
             </div>
             <DropdownMenuSeparator />

@@ -7,9 +7,22 @@ export interface LoginResponse {
   token_type: string;
 }
 
+export interface MeMember {
+  name: string;
+  status: string;
+  track: string;
+  team: string;
+  paymentStatus: string;
+  department: string;
+  studentId: string;
+  schoolEmail: string;
+  phone: string;
+}
+
 export interface MeResponse {
   id: string;
   email: string;
+  member: MeMember;
 }
 
 export interface VerifyEmailRequest {
