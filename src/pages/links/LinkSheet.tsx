@@ -24,8 +24,10 @@ import {
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis } from "recharts";
 import { toast } from "sonner";
+import { DetailRow } from "@/components/common/DetailRow";
 import { useLinkDetail, useToggleLink, useDeleteLink } from "@/hooks/use-links";
 import { shortUrl } from "@/lib/constants";
+import { formatDate } from "@/lib/format";
 import type { LinkDetail } from "@/types/link";
 import type { ChartConfig } from "@/components/ui/chart";
 
@@ -34,15 +36,6 @@ interface LinkSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onEdit: (detail: LinkDetail) => void;
-}
-
-function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="grid grid-cols-3 gap-4 py-2">
-      <dt className="text-sm font-medium text-muted-foreground">{label}</dt>
-      <dd className="col-span-2 text-sm break-all">{children}</dd>
-    </div>
-  );
 }
 
 const chartConfig: ChartConfig = {
@@ -116,7 +109,7 @@ export function LinkSheet({ linkId, open, onOpenChange, onEdit }: LinkSheetProps
               </SheetHeader>
               <div className="px-4 pb-4">
                 <dl>
-                  <DetailRow label="원본 URL">
+                  <DetailRow label="원본 URL" className="break-all">
                     <a
                       href={detail.url}
                       target="_blank"
@@ -127,7 +120,7 @@ export function LinkSheet({ linkId, open, onOpenChange, onEdit }: LinkSheetProps
                     </a>
                   </DetailRow>
                   <Separator />
-                  <DetailRow label="단축 URL">
+                  <DetailRow label="단축 URL" className="break-all">
                     <Button
                       variant="link"
                       className="h-auto p-0 text-blue-600"
@@ -147,7 +140,7 @@ export function LinkSheet({ linkId, open, onOpenChange, onEdit }: LinkSheetProps
                   </DetailRow>
                   <Separator />
                   <DetailRow label="만료일">
-                    {detail.expiresAt ? detail.expiresAt.slice(0, 10) : "무기한"}
+                    {detail.expiresAt ? formatDate(detail.expiresAt) : "무기한"}
                   </DetailRow>
                   {detail.description && (
                     <>

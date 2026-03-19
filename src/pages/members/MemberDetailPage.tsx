@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { useMember } from "@/hooks/use-members";
+import { formatDate } from "@/lib/format";
 
 function InfoRow({
   label,
@@ -141,8 +142,8 @@ export function MemberDetailPage() {
           <div className="divide-y rounded-lg border px-4">
             <InfoRow label="트랙" value={member.track} />
             <InfoRow label="상태" value={member.status} />
-            <InfoRow label="가입일" value={member.joinDate?.split("T")[0] ?? "-"} />
-            <InfoRow label="최근 수정일" value={member.lastUpdated?.split("T")[0] ?? "-"} />
+            <InfoRow label="가입일" value={member.joinDate ? formatDate(member.joinDate) : "-"} />
+            <InfoRow label="최근 수정일" value={member.lastUpdated ? formatDate(member.lastUpdated) : "-"} />
           </div>
         </div>
       </div>

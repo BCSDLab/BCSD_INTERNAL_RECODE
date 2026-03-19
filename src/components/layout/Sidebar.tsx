@@ -1,3 +1,4 @@
+import type React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Users, Link, QrCode, LogOut, User, ChevronsUpDown } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
@@ -13,6 +14,30 @@ import { Badge } from "@/components/ui/badge";
 import { useLogout, useMe } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 
+const NAV_ITEMS = [
+  { to: "/members", icon: Users, label: "멤버 관리", end: true },
+  { to: "/links", icon: Link, label: "URL 단축" },
+  { to: "/qr", icon: QrCode, label: "QR 코드" },
+];
+
+function SidebarNavLink({ to, icon: Icon, label, end }: { to: string; icon: React.ComponentType<{ className?: string }>; label: string; end?: boolean }) {
+  return (
+    <NavLink
+      to={to}
+      end={end}
+      className={({ isActive }) =>
+        cn(
+          "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
+          isActive ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-accent/50",
+        )
+      }
+    >
+      <Icon className="h-4 w-4" />
+      {label}
+    </NavLink>
+  );
+}
+
 export function Sidebar() {
   const logout = useLogout();
   const me = useMe();
@@ -26,49 +51,9 @@ export function Sidebar() {
       </div>
       <Separator />
       <nav className="flex-1 space-y-1 p-2">
-        <NavLink
-          to="/members"
-          end
-          className={({ isActive }) =>
-            cn(
-              "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
-              isActive
-                ? "bg-accent text-accent-foreground"
-                : "text-muted-foreground hover:bg-accent/50",
-            )
-          }
-        >
-          <Users className="h-4 w-4" />
-          멤버 관리
-        </NavLink>
-        <NavLink
-          to="/links"
-          className={({ isActive }) =>
-            cn(
-              "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
-              isActive
-                ? "bg-accent text-accent-foreground"
-                : "text-muted-foreground hover:bg-accent/50",
-            )
-          }
-        >
-          <Link className="h-4 w-4" />
-          URL 단축
-        </NavLink>
-        <NavLink
-          to="/qr"
-          className={({ isActive }) =>
-            cn(
-              "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
-              isActive
-                ? "bg-accent text-accent-foreground"
-                : "text-muted-foreground hover:bg-accent/50",
-            )
-          }
-        >
-          <QrCode className="h-4 w-4" />
-          QR 코드
-        </NavLink>
+        {NAV_ITEMS.map((item) => (
+          <SidebarNavLink key={item.to} {...item} />
+        ))}
       </nav>
       <Separator />
       <div className="p-2">

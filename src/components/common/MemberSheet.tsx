@@ -9,21 +9,14 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { DetailRow } from "@/components/common/DetailRow";
 import { useMember } from "@/hooks/use-members";
+import { paymentVariant } from "@/lib/format";
 
 interface MemberSheetProps {
   memberId: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-}
-
-function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="grid grid-cols-3 gap-4 py-2">
-      <dt className="text-sm font-medium text-muted-foreground">{label}</dt>
-      <dd className="col-span-2 text-sm">{children}</dd>
-    </div>
-  );
 }
 
 export function MemberSheet({ memberId, open, onOpenChange }: MemberSheetProps) {
@@ -78,15 +71,7 @@ export function MemberSheet({ memberId, open, onOpenChange }: MemberSheetProps) 
                 <DetailRow label="트랙">{member.track}</DetailRow>
                 <Separator />
                 <DetailRow label="납부 상태">
-                  <Badge
-                    variant={
-                      member.paymentStatus === "Paid"
-                        ? "default"
-                        : member.paymentStatus === "Unpaid"
-                          ? "destructive"
-                          : "secondary"
-                    }
-                  >
+                  <Badge variant={paymentVariant(member.paymentStatus)}>
                     {member.paymentStatus}
                   </Badge>
                 </DetailRow>

@@ -1,12 +1,6 @@
 import { useState, useMemo } from "react";
 import { useSearchParamState } from "@/hooks/use-search-param-state";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { FilterSelect } from "@/components/common/FilterSelect";
 import {
   Table,
   TableBody,
@@ -17,8 +11,8 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { TableSkeleton } from "@/components/common/TableSkeleton";
 import { Plus } from "lucide-react";
 import { Pagination } from "@/components/common/Pagination";
 import { toast } from "sonner";
@@ -26,10 +20,9 @@ import { useLinks, useLinkFilters } from "@/hooks/use-links";
 import { LinkSheet } from "./LinkSheet";
 import { LinkDialog } from "./LinkDialog";
 import { shortUrl } from "@/lib/constants";
+import { formatDate } from "@/lib/format";
 import type { LinkFilterInput, LinkDetail } from "@/types/link";
 
-const ALL_CREATOR = "전체 생성자";
-const ALL_STATUS = "전체 상태";
 const PAGE_SIZE = 20;
 
 function isLinkExpired(link: { expiredAt: string | null; expiresAt: string | null }) {
@@ -43,10 +36,6 @@ function expiredBadge(link: { expiredAt: string | null; expiresAt: string | null
     return <Badge variant="destructive">만료</Badge>;
   }
   return <Badge variant="default">활성</Badge>;
-}
-
-function formatDate(iso: string) {
-  return iso.slice(0, 10);
 }
 
 export function LinksPage() {
@@ -95,36 +84,8 @@ export function LinksPage() {
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <Select
-          value={creatorId || ALL_CREATOR}
-          onValueChange={(v) => updateParam("creator_id", v === ALL_CREATOR ? "" : v ?? "")}
-        >
-          <SelectTrigger className="w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent alignItemWithTrigger={false}>
-            <SelectItem value={ALL_CREATOR}>전체 생성자</SelectItem>
-            {filterOptions?.creators.map((c) => (
-              <SelectItem key={c.id} value={c.id}>
-                {c.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select
-          value={expired || ALL_STATUS}
-          onValueChange={(v) => updateParam("expired", v === ALL_STATUS ? "" : v ?? "")}
-        >
-          <SelectTrigger className="w-36">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent alignItemWithTrigger={false}>
-            <SelectItem value={ALL_STATUS}>전체 상태</SelectItem>
-            <SelectItem value="active">활성</SelectItem>
-            <SelectItem value="expired">만료</SelectItem>
-          </SelectContent>
-        </Select>
+        <FilterSelect value={creatorId} allLabel="전체 생성자" options={filterOptions?.creators.map(c => ({ value: c.id, label: c.name }))} onValueChange={(v) => updateParam("creator_id", v)} className="w-40" />
+        <FilterSelect value={expired} allLabel="전체 상태" options={[{ value: "active", label: "활성" }, { value: "expired", label: "만료" }]} onValueChange={(v) => updateParam("expired", v)} />
       </div>
 
       {isError && (
@@ -147,15 +108,7 @@ export function LinksPage() {
           </TableHeader>
           <TableBody>
             {isLoading
-              ? Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i}>
-                    {Array.from({ length: 6 }).map((_, j) => (
-                      <TableCell key={j}>
-                        <Skeleton className="h-4 w-20" />
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
+              ? <TableSkeleton columns={6} />
               : data?.items.map((link) => (
                   <TableRow
                     key={link.id}

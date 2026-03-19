@@ -1,14 +1,8 @@
 import { useState } from "react";
 import { useSearchParamState } from "@/hooks/use-search-param-state";
 import { MemberSheet } from "@/components/common/MemberSheet";
+import { FilterSelect } from "@/components/common/FilterSelect";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -18,42 +12,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { TableSkeleton } from "@/components/common/TableSkeleton";
 import { Search } from "lucide-react";
 import { Pagination } from "@/components/common/Pagination";
 import { useMembersWithFilters } from "@/hooks/use-members";
 import { useDebounce } from "@/hooks/use-debounce";
+import { statusVariant, paymentVariant } from "@/lib/format";
 import type { MemberFilterInput } from "@/types/common";
 
-const ALL_TRACK = "전체 트랙";
-const ALL_STATUS = "전체 상태";
-const ALL_PAYMENT = "전체 납부";
 const PAGE_SIZE = 20;
-
-function statusVariant(status: string) {
-  switch (status) {
-    case "Regular":
-      return "default" as const;
-    case "Beginner":
-      return "secondary" as const;
-    case "Mentor":
-      return "outline" as const;
-    default:
-      return "secondary" as const;
-  }
-}
-
-function paymentVariant(status: string) {
-  switch (status) {
-    case "Paid":
-      return "default" as const;
-    case "Unpaid":
-      return "destructive" as const;
-    default:
-      return "secondary" as const;
-  }
-}
 
 export function MembersPage() {
   const { searchParams, page, updateParam, setParam, deleteParam } = useSearchParamState();
@@ -100,58 +68,9 @@ export function MembersPage() {
           />
         </div>
 
-        <Select
-          value={track || ALL_TRACK}
-          onValueChange={(v) => updateParam("track", v === ALL_TRACK ? "" : v ?? "")}
-        >
-          <SelectTrigger className="w-36">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent alignItemWithTrigger={false}>
-            <SelectItem value={ALL_TRACK}>전체 트랙</SelectItem>
-            {filterOptions?.tracks.map((t) => (
-              <SelectItem key={t} value={t}>
-                {t}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select
-          value={status || ALL_STATUS}
-          onValueChange={(v) => updateParam("status", v === ALL_STATUS ? "" : v ?? "")}
-        >
-          <SelectTrigger className="w-36">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent alignItemWithTrigger={false}>
-            <SelectItem value={ALL_STATUS}>전체 상태</SelectItem>
-            {filterOptions?.statuses.map((s) => (
-              <SelectItem key={s} value={s}>
-                {s}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select
-          value={paymentStatus || ALL_PAYMENT}
-          onValueChange={(v) =>
-            updateParam("payment_status", v === ALL_PAYMENT ? "" : v ?? "")
-          }
-        >
-          <SelectTrigger className="w-36">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent alignItemWithTrigger={false}>
-            <SelectItem value={ALL_PAYMENT}>전체 납부</SelectItem>
-            {filterOptions?.paymentStatuses.map((p) => (
-              <SelectItem key={p} value={p}>
-                {p}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <FilterSelect value={track} allLabel="전체 트랙" options={filterOptions?.tracks.map(t => ({ value: t, label: t }))} onValueChange={(v) => updateParam("track", v)} />
+        <FilterSelect value={status} allLabel="전체 상태" options={filterOptions?.statuses.map(s => ({ value: s, label: s }))} onValueChange={(v) => updateParam("status", v)} />
+        <FilterSelect value={paymentStatus} allLabel="전체 납부" options={filterOptions?.paymentStatuses.map(p => ({ value: p, label: p }))} onValueChange={(v) => updateParam("payment_status", v)} />
       </div>
 
       {isError && (
@@ -173,15 +92,7 @@ export function MembersPage() {
           </TableHeader>
           <TableBody>
             {isLoading
-              ? Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i}>
-                    {Array.from({ length: 5 }).map((_, j) => (
-                      <TableCell key={j}>
-                        <Skeleton className="h-4 w-20" />
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
+              ? <TableSkeleton columns={5} />
               : data?.items.map((member) => (
                   <TableRow
                     key={member.id}
