@@ -149,9 +149,9 @@ export function QrPage() {
   const textTooLong = text.length > 2000;
   const canGenerate = text.trim().length > 0 && !textTooLong;
 
-  const generate = useCallback(async (targetText: string, sz: number, logo: boolean, fg: string, bg: string) => {
+  const generate = useCallback(async (targetText: string, sz: number, logo: boolean, fg: string, bg: string, showLoading = false) => {
     if (!targetText) return;
-    setGenerating(true);
+    if (showLoading) setGenerating(true);
     try {
       const colors: QrColors = { dark: fg, light: bg };
       const svg = await buildSvgString(targetText, sz, logo, colors);
@@ -165,14 +165,14 @@ export function QrPage() {
     } catch {
       toast.error("QR 코드 생성에 실패했습니다.");
     } finally {
-      setGenerating(false);
+      if (showLoading) setGenerating(false);
     }
   }, []);
 
   const handleGenerate = () => {
     if (!canGenerate) return;
     generatedText.current = text.trim();
-    generate(generatedText.current, size, withLogo, fgColor, bgColor);
+    generate(generatedText.current, size, withLogo, fgColor, bgColor, true);
   };
 
   useEffect(() => {
