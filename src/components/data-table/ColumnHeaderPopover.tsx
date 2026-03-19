@@ -4,7 +4,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Popover, PopoverContent, PopoverTrigger,
@@ -170,7 +169,7 @@ export function ColumnHeaderPopover({
         {sortable && onSort && (
           <SortSection currentSort={currentSort} onSort={onSort} />
         )}
-        {sortable && hasFilter && <Separator className="my-1" />}
+        {sortable && hasFilter && <div className="my-1" />}
         {filterType === "enum" && filterOptions && onFilterChange && (
           <EnumFilter
             value={filterValue ?? ""}
