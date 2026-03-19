@@ -1,29 +1,22 @@
 import { useState, useMemo } from "react";
-import { useSearchParamState } from "@/hooks/use-search-param-state";
-import { FilterSelect } from "@/components/common/FilterSelect";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable } from "@/components/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { TableSkeleton } from "@/components/common/TableSkeleton";
-import { Plus } from "lucide-react";
 import { Pagination } from "@/components/common/Pagination";
+import { Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useTableState } from "@/hooks/use-table-state";
 import { useLinks, useLinkFilters } from "@/hooks/use-links";
 import { LinkSheet } from "./LinkSheet";
 import { LinkDialog } from "./LinkDialog";
 import { shortUrl } from "@/lib/constants";
 import { formatDate } from "@/lib/format";
-import type { LinkFilterInput, LinkDetail } from "@/types/link";
+import type { LinkFilterInput, Link, LinkDetail } from "@/types/link";
+import type { ColumnDef } from "@/types/data-table";
 
 const PAGE_SIZE = 20;
+const FILTER_KEYS = ["creator_id", "expired"];
 
 function isLinkExpired(link: { expiredAt: string | null; expiresAt: string | null }) {
   if (link.expiredAt) return true;
@@ -31,19 +24,14 @@ function isLinkExpired(link: { expiredAt: string | null; expiresAt: string | nul
   return false;
 }
 
-function expiredBadge(link: { expiredAt: string | null; expiresAt: string | null }) {
-  if (isLinkExpired(link)) {
-    return <Badge variant="destructive">만료</Badge>;
-  }
-  return <Badge variant="default">활성</Badge>;
-}
-
 export function LinksPage() {
-  const { searchParams, page, updateParam, setParam, deleteParam } = useSearchParamState();
+  const {
+    searchParams, page, sorts, getFilters,
+    toggleSort, setFilter, setPage, setParam, deleteParam,
+  } = useTableState();
 
-  const creatorId = searchParams.get("creator_id") ?? "";
-  const expired = searchParams.get("expired") ?? "";
   const selectedLinkId = searchParams.get("link");
+  const filters = getFilters(FILTER_KEYS);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editData, setEditData] = useState<LinkDetail | undefined>();
@@ -51,12 +39,13 @@ export function LinksPage() {
   const filter: LinkFilterInput = {
     page,
     size: PAGE_SIZE,
-    ...(creatorId && { creatorId }),
-    ...(expired && { expired }),
+    ...(filters.creator_id && { creatorId: filters.creator_id }),
+    ...(filters.expired && { expired: filters.expired }),
   };
 
   const { data: filterOptions } = useLinkFilters();
   const { data, isLoading, isError } = useLinks(filter);
+  const totalPages = data ? Math.ceil(data.total / PAGE_SIZE) : 0;
 
   const creatorMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -64,9 +53,66 @@ export function LinksPage() {
     return map;
   }, [filterOptions]);
 
-
-  const totalPages = data ? Math.ceil(data.total / PAGE_SIZE) : 0;
-  const hasFilters = creatorId || expired;
+  const columns: ColumnDef<Link>[] = [
+    {
+      id: "title",
+      header: "제목",
+      cell: (l) => <span className="font-medium">{l.title}</span>,
+      sortable: true,
+    },
+    {
+      id: "code",
+      header: "단축 URL",
+      cell: (l) => (
+        <Button
+          variant="link"
+          className="h-auto p-0 text-blue-600"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigator.clipboard.writeText(shortUrl(l.code));
+            toast.success("단축 URL이 복사되었습니다.");
+          }}
+        >
+          {shortUrl(l.code)}
+        </Button>
+      ),
+    },
+    {
+      id: "creatorId",
+      header: "생성자",
+      cell: (l) => creatorMap.get(l.creatorId) ?? l.creatorId,
+      sortable: true,
+      filterType: "enum",
+      filterParamKey: "creator_id",
+      filterOptions: filterOptions?.creators.map((c) => ({ value: c.id, label: c.name })),
+    },
+    {
+      id: "createdAt",
+      header: "생성일",
+      cell: (l) => formatDate(l.createdAt),
+      sortable: true,
+      filterType: "date",
+    },
+    {
+      id: "expired",
+      header: "상태",
+      cell: (l) => isLinkExpired(l)
+        ? <Badge variant="destructive">만료</Badge>
+        : <Badge variant="default">활성</Badge>,
+      filterType: "enum",
+      filterParamKey: "expired",
+      filterOptions: [
+        { value: "active", label: "활성" },
+        { value: "expired", label: "만료" },
+      ],
+    },
+    {
+      id: "expiresAt",
+      header: "만료일",
+      cell: (l) => l.expiresAt ? formatDate(l.expiresAt) : "무기한",
+      sortable: true,
+    },
+  ];
 
   return (
     <div className="space-y-4">
@@ -83,87 +129,24 @@ export function LinksPage() {
         </Button>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
-        <FilterSelect value={creatorId} allLabel="전체 생성자" options={filterOptions?.creators.map(c => ({ value: c.id, label: c.name }))} onValueChange={(v) => updateParam("creator_id", v)} className="w-40" />
-        <FilterSelect value={expired} allLabel="전체 상태" options={[{ value: "active", label: "활성" }, { value: "expired", label: "만료" }]} onValueChange={(v) => updateParam("expired", v)} />
-      </div>
-
       {isError && (
         <Alert variant="destructive">
           <AlertDescription>링크 목록을 불러오지 못했습니다.</AlertDescription>
         </Alert>
       )}
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>제목</TableHead>
-              <TableHead>단축 URL</TableHead>
-              <TableHead>생성자</TableHead>
-              <TableHead>생성일</TableHead>
-              <TableHead>상태</TableHead>
-              <TableHead>만료일</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading
-              ? <TableSkeleton columns={6} />
-              : data?.items.map((link) => (
-                  <TableRow
-                    key={link.id}
-                    className="cursor-pointer"
-                    onClick={() => setParam("link", link.id)}
-                  >
-                    <TableCell className="font-medium">{link.title}</TableCell>
-                    <TableCell>
-                      <Button
-                        variant="link"
-                        className="h-auto p-0 text-blue-600"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigator.clipboard.writeText(shortUrl(link.code));
-                          toast.success("단축 URL이 복사되었습니다.");
-                        }}
-                      >
-                        {shortUrl(link.code)}
-                      </Button>
-                    </TableCell>
-                    <TableCell>{creatorMap.get(link.creatorId) ?? link.creatorId}</TableCell>
-                    <TableCell>{formatDate(link.createdAt)}</TableCell>
-                    <TableCell>{expiredBadge(link)}</TableCell>
-                    <TableCell>
-                      {link.expiresAt ? formatDate(link.expiresAt) : "무기한"}
-                    </TableCell>
-                  </TableRow>
-                ))}
-            {!isLoading && data?.items.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
-                  {hasFilters ? (
-                    "검색 결과가 없습니다."
-                  ) : (
-                    <div className="space-y-2">
-                      <p>등록된 링크가 없습니다.</p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setEditData(undefined);
-                          setDialogOpen(true);
-                        }}
-                      >
-                        <Plus className="mr-1 h-4 w-4" />
-                        새 링크 만들기
-                      </Button>
-                    </div>
-                  )}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <DataTable
+        columns={columns}
+        data={data?.items}
+        isLoading={isLoading}
+        sorts={sorts}
+        filters={filters}
+        onToggleSort={toggleSort}
+        onFilterChange={setFilter}
+        onRowClick={(l) => setParam("link", l.id)}
+        rowKey={(l) => l.id}
+        emptyMessage="등록된 링크가 없습니다."
+      />
 
       <LinkSheet
         linkId={selectedLinkId}
@@ -183,11 +166,7 @@ export function LinksPage() {
         editData={editData}
       />
 
-      <Pagination
-        page={page}
-        totalPages={totalPages}
-        onPageChange={(p) => updateParam("page", String(p))}
-      />
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
     </div>
   );
 }
