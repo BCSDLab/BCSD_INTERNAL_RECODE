@@ -1,4 +1,6 @@
+import { gql } from "graphql-request";
 import { apiClient } from "./client";
+import { gqlClient } from "./graphql-client";
 import type {
   LoginRequest,
   LoginResponse,
@@ -10,14 +12,20 @@ import type {
   MessageResponse,
 } from "@/types/auth";
 
+const ME_QUERY = gql`
+  query Me {
+    me { id email }
+  }
+`;
+
 export async function postLogin(body: LoginRequest): Promise<LoginResponse> {
   const { data } = await apiClient.post<LoginResponse>("/v1/auth/login", body);
   return data;
 }
 
 export async function getMe(): Promise<MeResponse> {
-  const { data } = await apiClient.get<MeResponse>("/v1/auth/me");
-  return data;
+  const data = await gqlClient.request<{ me: MeResponse }>(ME_QUERY);
+  return data.me;
 }
 
 export async function postLogout(): Promise<void> {

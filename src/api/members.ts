@@ -34,18 +34,11 @@ const MEMBER_FILTERS_QUERY = gql`
 export async function getMembers(
   filter: MemberFilterInput,
 ): Promise<PagedResponse<MemberResponse>> {
-  console.log("[DEBUG] getMembers called, filter:", filter);
-  try {
-    const data = await gqlClient.request<{ members: PagedResponse<MemberResponse> }>(
-      MEMBERS_QUERY,
-      { filter },
-    );
-    console.log("[DEBUG] getMembers success:", data);
-    return data.members;
-  } catch (e) {
-    console.error("[DEBUG] getMembers error:", e);
-    throw e;
-  }
+  const data = await gqlClient.request<{ members: PagedResponse<MemberResponse> }>(
+    MEMBERS_QUERY,
+    { filter },
+  );
+  return data.members;
 }
 
 export async function getMember(memberId: string): Promise<MemberDetail> {
