@@ -43,7 +43,7 @@ export function MembersPage() {
   const columns: ColumnDef<MemberResponse>[] = [
     {
       id: "track",
-      header: "Track",
+      header: "트랙",
       cell: (m) => m.track,
       sortable: true,
       filterType: "enum",
@@ -72,7 +72,7 @@ export function MembersPage() {
     },
     {
       id: "department",
-      header: "학부(학과)",
+      header: "학부",
       cell: (m) => m.department ?? "-",
       sortable: true,
       filterType: "text",
@@ -99,7 +99,7 @@ export function MembersPage() {
     },
     {
       id: "email",
-      header: "이메일(Google)",
+      header: "이메일",
       cell: (m) => m.email,
       sortable: true,
       filterType: "text",
