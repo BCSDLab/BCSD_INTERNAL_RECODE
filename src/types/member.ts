@@ -4,14 +4,15 @@ export interface MemberResponse {
   email: string;
   status: string;
   track: string;
-  payment_status: string;
+  team: string;
+  paymentStatus: string;
 }
 
 export interface MemberDetail extends MemberResponse {
   department: string;
-  student_id: string;
-  school_email: string;
+  studentId: string;
+  schoolEmail: string;
   phone: string;
-  join_date: string;
-  last_updated: string;
+  joinDate: string;
+  lastUpdated: string;
 }

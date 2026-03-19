@@ -25,19 +25,19 @@ import { useLinks, useLinkFilters } from "@/hooks/use-links";
 import { LinkSheet } from "./LinkSheet";
 import { LinkDialog } from "./LinkDialog";
 import { shortUrl } from "@/lib/constants";
-import type { LinkFilterParams, LinkDetail } from "@/types/link";
+import type { LinkFilterInput, LinkDetail } from "@/types/link";
 
 const ALL_CREATOR = "전체 생성자";
 const ALL_STATUS = "전체 상태";
 const PAGE_SIZE = 20;
 
-function isLinkExpired(link: { expired_at: string | null; expires_at: string | null }) {
-  if (link.expired_at) return true;
-  if (link.expires_at && new Date(link.expires_at) < new Date()) return true;
+function isLinkExpired(link: { expiredAt: string | null; expiresAt: string | null }) {
+  if (link.expiredAt) return true;
+  if (link.expiresAt && new Date(link.expiresAt) < new Date()) return true;
   return false;
 }
 
-function expiredBadge(link: { expired_at: string | null; expires_at: string | null }) {
+function expiredBadge(link: { expiredAt: string | null; expiresAt: string | null }) {
   if (isLinkExpired(link)) {
     return <Badge variant="destructive">만료</Badge>;
   }
@@ -59,10 +59,10 @@ export function LinksPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editData, setEditData] = useState<LinkDetail | undefined>();
 
-  const filter: LinkFilterParams = {
+  const filter: LinkFilterInput = {
     page,
     size: PAGE_SIZE,
-    ...(creatorId && { creator_id: creatorId }),
+    ...(creatorId && { creatorId }),
     ...(expired && { expired }),
   };
 
@@ -190,11 +190,11 @@ export function LinksPage() {
                         {shortUrl(link.code)}
                       </Button>
                     </TableCell>
-                    <TableCell>{creatorMap.get(link.creator_id) ?? link.creator_id}</TableCell>
-                    <TableCell>{formatDate(link.created_at)}</TableCell>
+                    <TableCell>{creatorMap.get(link.creatorId) ?? link.creatorId}</TableCell>
+                    <TableCell>{formatDate(link.createdAt)}</TableCell>
                     <TableCell>{expiredBadge(link)}</TableCell>
                     <TableCell>
-                      {link.expires_at ? formatDate(link.expires_at) : "무기한"}
+                      {link.expiresAt ? formatDate(link.expiresAt) : "무기한"}
                     </TableCell>
                   </TableRow>
                 ))}

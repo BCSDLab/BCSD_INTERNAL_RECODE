@@ -22,10 +22,9 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
-import { useMembers } from "@/hooks/use-members";
+import { useMembers, useMemberFilters } from "@/hooks/use-members";
 import { useDebounce } from "@/hooks/use-debounce";
-import { useFilterOptions } from "@/hooks/use-tracks";
-import type { MemberFilterParams } from "@/types/common";
+import type { MemberFilterInput } from "@/types/common";
 
 const ALL_TRACK = "전체 트랙";
 const ALL_STATUS = "전체 상태";
@@ -68,16 +67,16 @@ export function MembersPage() {
   const [nameInput, setNameInput] = useState(searchParams.get("name") ?? "");
   const debouncedName = useDebounce(nameInput);
 
-  const filter: MemberFilterParams = {
+  const filter: MemberFilterInput = {
     page,
     size: PAGE_SIZE,
     ...(track && { track }),
     ...(status && { status }),
-    ...(paymentStatus && { payment_status: paymentStatus }),
+    ...(paymentStatus && { paymentStatus }),
     ...(debouncedName && { name: debouncedName }),
   };
 
-  const { data: filterOptions } = useFilterOptions();
+  const { data: filterOptions } = useMemberFilters();
   const { data, isLoading, isError } = useMembers(filter);
 
   const updateParam = (key: string, value: string) => {
@@ -156,7 +155,7 @@ export function MembersPage() {
           </SelectTrigger>
           <SelectContent alignItemWithTrigger={false}>
             <SelectItem value={ALL_PAYMENT}>전체 납부</SelectItem>
-            {filterOptions?.payment_statuses.map((p) => (
+            {filterOptions?.paymentStatuses.map((p) => (
               <SelectItem key={p} value={p}>
                 {p}
               </SelectItem>
@@ -212,8 +211,8 @@ export function MembersPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={paymentVariant(member.payment_status)}>
-                        {member.payment_status}
+                      <Badge variant={paymentVariant(member.paymentStatus)}>
+                        {member.paymentStatus}
                       </Badge>
                     </TableCell>
                   </TableRow>

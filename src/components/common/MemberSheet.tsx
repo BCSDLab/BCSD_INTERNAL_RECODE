@@ -67,11 +67,11 @@ export function MemberSheet({ memberId, open, onOpenChange }: MemberSheetProps) 
               <dl>
                 <DetailRow label="이메일">{member.email}</DetailRow>
                 <Separator />
-                <DetailRow label="학교 이메일">{member.school_email}</DetailRow>
+                <DetailRow label="학교 이메일">{member.schoolEmail}</DetailRow>
                 <Separator />
                 <DetailRow label="학부(학과)">{member.department}</DetailRow>
                 <Separator />
-                <DetailRow label="학번">{member.student_id}</DetailRow>
+                <DetailRow label="학번">{member.studentId}</DetailRow>
                 <Separator />
                 <DetailRow label="전화번호">{member.phone}</DetailRow>
                 <Separator />
@@ -80,18 +80,18 @@ export function MemberSheet({ memberId, open, onOpenChange }: MemberSheetProps) 
                 <DetailRow label="납부 상태">
                   <Badge
                     variant={
-                      member.payment_status === "Paid"
+                      member.paymentStatus === "Paid"
                         ? "default"
-                        : member.payment_status === "Unpaid"
+                        : member.paymentStatus === "Unpaid"
                           ? "destructive"
                           : "secondary"
                     }
                   >
-                    {member.payment_status}
+                    {member.paymentStatus}
                   </Badge>
                 </DetailRow>
                 <Separator />
-                <DetailRow label="가입일">{member.join_date}</DetailRow>
+                <DetailRow label="가입일">{member.joinDate}</DetailRow>
               </dl>
             </div>
           </>

@@ -8,9 +8,9 @@ import {
   toggleLink,
   deleteLink,
 } from "@/api/links";
-import type { LinkFilterParams, UpdateLinkRequest } from "@/types/link";
+import type { LinkFilterInput, UpdateLinkInput } from "@/types/link";
 
-export function useLinks(filter: LinkFilterParams) {
+export function useLinks(filter: LinkFilterInput) {
   return useQuery({
     queryKey: ["links", filter],
     queryFn: () => getLinks(filter),
@@ -46,8 +46,8 @@ export function useCreateLink() {
 export function useUpdateLink() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ linkId, body }: { linkId: string; body: UpdateLinkRequest }) =>
-      updateLink(linkId, body),
+    mutationFn: ({ linkId, input }: { linkId: string; input: UpdateLinkInput }) =>
+      updateLink(linkId, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["links"] });
     },

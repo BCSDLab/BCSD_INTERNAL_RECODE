@@ -1,14 +1,14 @@
-export interface LinkResponse {
+export interface Link {
   id: string;
   code: string;
   title: string;
-  description: string | null;
   url: string;
-  creator_id: string;
-  created_at: string;
-  expires_at: string | null;
-  expired_at: string | null;
-  updated_at: string;
+  creatorId: string;
+  createdAt: string;
+  updatedAt: string;
+  description: string | null;
+  expiresAt: string | null;
+  expiredAt: string | null;
 }
 
 export interface DailyClick {
@@ -16,23 +16,23 @@ export interface DailyClick {
   count: number;
 }
 
-export interface LinkDetail extends LinkResponse {
-  total_clicks: number;
-  daily_clicks: DailyClick[];
+export interface LinkDetail extends Link {
+  totalClicks: number;
+  dailyClicks: DailyClick[];
 }
 
-export interface CreateLinkRequest {
+export interface CreateLinkInput {
   title: string;
   url: string;
   code?: string;
   description?: string;
-  expires_at?: string;
+  expiresAt?: string;
 }
 
-export interface UpdateLinkRequest {
+export interface UpdateLinkInput {
   title?: string;
   description?: string;
-  expires_at?: string;
+  expiresAt?: string;
 }
 
 export interface CreatorOption {
@@ -40,13 +40,16 @@ export interface CreatorOption {
   name: string;
 }
 
-export interface LinkFiltersResponse {
+export interface LinkFilters {
   creators: CreatorOption[];
+  expired: string[];
 }
 
-export interface LinkFilterParams {
-  creator_id?: string;
+export interface LinkFilterInput {
+  page?: number;
+  size?: number;
+  sortBy?: string;
+  sortOrder?: string;
+  creatorId?: string;
   expired?: string;
-  page: number;
-  size: number;
 }

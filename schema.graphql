@@ -1,0 +1,150 @@
+type Query {
+  members(filter: MemberFilterInput): PagedMembers!
+  member(id: ID!): MemberDetail!
+  memberFilters: MemberFilters!
+  tracks: [String!]!
+  links(filter: LinkFilterInput): PagedLinks!
+  link(id: ID!): LinkDetail!
+  linkFilters: LinkFilters!
+  me: Me!
+}
+
+type Mutation {
+  createLink(input: CreateLinkInput!): Link!
+  updateLink(id: ID!, input: UpdateLinkInput!): Link!
+  toggleLink(id: ID!): Link!
+  deleteLink(id: ID!): Boolean!
+}
+
+# === Types ===
+
+type Me {
+  id: String!
+  email: String!
+}
+
+type MemberType {
+  id: String!
+  name: String!
+  email: String!
+  status: String!
+  track: String!
+  team: String!
+  paymentStatus: String!
+}
+
+type MemberDetail {
+  id: String!
+  name: String!
+  email: String!
+  status: String!
+  track: String!
+  team: String!
+  paymentStatus: String!
+  department: String!
+  studentId: String!
+  schoolEmail: String!
+  phone: String!
+  joinDate: String!
+  lastUpdated: String!
+}
+
+type PagedMembers {
+  items: [MemberType!]!
+  total: Int!
+  page: Int!
+  size: Int!
+}
+
+type MemberFilters {
+  tracks: [String!]!
+  statuses: [String!]!
+  paymentStatuses: [String!]!
+}
+
+type Link {
+  id: String!
+  code: String!
+  title: String!
+  url: String!
+  creatorId: String!
+  createdAt: String!
+  updatedAt: String!
+  description: String
+  expiresAt: String
+  expiredAt: String
+}
+
+type DailyClick {
+  date: String!
+  count: Int!
+}
+
+type LinkDetail {
+  id: String!
+  code: String!
+  title: String!
+  url: String!
+  creatorId: String!
+  createdAt: String!
+  updatedAt: String!
+  description: String
+  expiresAt: String
+  expiredAt: String
+  totalClicks: Int!
+  dailyClicks: [DailyClick!]!
+}
+
+type PagedLinks {
+  items: [Link!]!
+  total: Int!
+  page: Int!
+  size: Int!
+}
+
+type CreatorOption {
+  id: String!
+  name: String!
+}
+
+type LinkFilters {
+  creators: [CreatorOption!]!
+  expired: [String!]!
+}
+
+# === Inputs ===
+
+input MemberFilterInput {
+  page: Int = 1
+  size: Int = 20
+  sortBy: String = "id"
+  sortOrder: String = "asc"
+  status: String
+  track: String
+  team: String
+  paymentStatus: String
+  name: String
+}
+
+input LinkFilterInput {
+  page: Int = 1
+  size: Int = 20
+  sortBy: String = "id"
+  sortOrder: String = "asc"
+  creatorId: String
+  expired: String
+}
+
+input CreateLinkInput {
+  title: String!
+  url: String!
+  description: String
+  code: String
+  expiresAt: String
+}
+
+input UpdateLinkInput {
+  title: String
+  description: String
+  expiresAt: String
+}

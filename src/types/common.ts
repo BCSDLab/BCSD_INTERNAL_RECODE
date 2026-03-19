@@ -10,19 +10,20 @@ export interface ApiError {
   message: string;
 }
 
-export interface FilterOptions {
+export interface MemberFilters {
   tracks: string[];
   statuses: string[];
-  payment_statuses: string[];
+  paymentStatuses: string[];
 }
 
-export interface MemberFilterParams {
+export interface MemberFilterInput {
   status?: string;
   track?: string;
-  payment_status?: string;
+  team?: string;
+  paymentStatus?: string;
   name?: string;
-  page: number;
-  size: number;
-  sort_by?: string;
-  sort_order?: "asc" | "desc";
+  page?: number;
+  size?: number;
+  sortBy?: string;
+  sortOrder?: string;
 }

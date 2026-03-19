@@ -47,10 +47,10 @@ export function LinkDialog({ open, onOpenChange, editData }: LinkDialogProps) {
               updateMutation.mutate(
                 {
                   linkId: editData.id,
-                  body: {
+                  input: {
                     title: data.title,
                     description: data.description || undefined,
-                    expires_at: data.expires_at || undefined,
+                    expiresAt: data.expiresAt || undefined,
                   },
                 },
                 {
@@ -67,7 +67,7 @@ export function LinkDialog({ open, onOpenChange, editData }: LinkDialogProps) {
                   url: data.url,
                   code: data.code || undefined,
                   description: data.description || undefined,
-                  expires_at: data.expires_at || undefined,
+                  expiresAt: data.expiresAt || undefined,
                 },
                 {
                   onSuccess: () => {
@@ -89,7 +89,7 @@ interface FormData {
   url: string;
   code: string;
   description: string;
-  expires_at: string;
+  expiresAt: string;
 }
 
 function parseDate(iso: string | null | undefined): Date | undefined {
@@ -113,7 +113,7 @@ function LinkForm({
   const [url, setUrl] = useState(editData?.url ?? "");
   const [code, setCode] = useState(editData?.code ?? "");
   const [description, setDescription] = useState(editData?.description ?? "");
-  const [expiresAt, setExpiresAt] = useState<Date | undefined>(parseDate(editData?.expires_at));
+  const [expiresAt, setExpiresAt] = useState<Date | undefined>(parseDate(editData?.expiresAt));
 
   const canSubmit = title.trim() && (isEdit || url.trim());
 
@@ -124,7 +124,7 @@ function LinkForm({
       url: url.trim(),
       code: code.trim(),
       description: description.trim(),
-      expires_at: expiresAt ? expiresAt.toISOString() : "",
+      expiresAt: expiresAt ? expiresAt.toISOString() : "",
     });
   };
 

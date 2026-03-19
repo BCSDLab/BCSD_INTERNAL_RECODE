@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useFilterOptions } from "@/hooks/use-tracks";
+import { useMemberFilters } from "@/hooks/use-members";
 
 interface TrackStepProps {
   onBack: () => void;
@@ -15,7 +15,7 @@ interface TrackStepProps {
 
 export function TrackStep({ onBack, onComplete, isPending }: TrackStepProps) {
   const [track, setTrack] = useState("");
-  const { data, isLoading, isError } = useFilterOptions();
+  const { data, isLoading, isError } = useMemberFilters();
   const tracks = data?.tracks;
 
   return (

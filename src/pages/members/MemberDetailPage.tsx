@@ -131,8 +131,8 @@ export function MemberDetailPage() {
           <h2 className="mb-2 text-sm font-semibold text-muted-foreground">학교 정보</h2>
           <div className="divide-y rounded-lg border px-4">
             <InfoRow label="학과" value={editing ? department : member.department} editing={editing} onChange={setDepartment} />
-            <InfoRow label="학번" value={member.student_id} />
-            <InfoRow label="학교 이메일" value={member.school_email} />
+            <InfoRow label="학번" value={member.studentId} />
+            <InfoRow label="학교 이메일" value={member.schoolEmail} />
           </div>
         </div>
 
@@ -141,8 +141,8 @@ export function MemberDetailPage() {
           <div className="divide-y rounded-lg border px-4">
             <InfoRow label="트랙" value={member.track} />
             <InfoRow label="상태" value={member.status} />
-            <InfoRow label="가입일" value={member.join_date?.split("T")[0] ?? "-"} />
-            <InfoRow label="최근 수정일" value={member.last_updated?.split("T")[0] ?? "-"} />
+            <InfoRow label="가입일" value={member.joinDate?.split("T")[0] ?? "-"} />
+            <InfoRow label="최근 수정일" value={member.lastUpdated?.split("T")[0] ?? "-"} />
           </div>
         </div>
       </div>

@@ -59,7 +59,7 @@ export function LinkSheet({ linkId, open, onOpenChange, onEdit }: LinkSheetProps
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const isExpired = detail
-    ? !!(detail.expired_at || (detail.expires_at && new Date(detail.expires_at) < new Date()))
+    ? !!(detail.expiredAt || (detail.expiresAt && new Date(detail.expiresAt) < new Date()))
     : false;
 
   const handleToggle = () => {
@@ -147,7 +147,7 @@ export function LinkSheet({ linkId, open, onOpenChange, onEdit }: LinkSheetProps
                   </DetailRow>
                   <Separator />
                   <DetailRow label="만료일">
-                    {detail.expires_at ? detail.expires_at.slice(0, 10) : "무기한"}
+                    {detail.expiresAt ? detail.expiresAt.slice(0, 10) : "무기한"}
                   </DetailRow>
                   {detail.description && (
                     <>
@@ -188,14 +188,14 @@ export function LinkSheet({ linkId, open, onOpenChange, onEdit }: LinkSheetProps
                 <div>
                   <div className="mb-2 text-sm font-medium">클릭 통계</div>
                   <div className="mb-4 text-2xl font-bold">
-                    {detail.total_clicks.toLocaleString()}
+                    {detail.totalClicks.toLocaleString()}
                     <span className="ml-2 text-sm font-normal text-muted-foreground">
                       총 클릭
                     </span>
                   </div>
-                  {detail.daily_clicks.length > 0 && (
+                  {detail.dailyClicks.length > 0 && (
                     <ChartContainer config={chartConfig} className="h-40 w-full">
-                      <BarChart data={detail.daily_clicks}>
+                      <BarChart data={detail.dailyClicks}>
                         <XAxis
                           dataKey="date"
                           tickFormatter={(v: string) => v.slice(5)}
