@@ -5,13 +5,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Pagination } from "@/components/common/Pagination";
 import { useTableState } from "@/hooks/use-table-state";
 import { useMembersWithFilters } from "@/hooks/use-members";
-import { statusVariant, paymentVariant } from "@/lib/format";
+import { statusVariant } from "@/lib/format";
 import type { MemberFilterInput } from "@/types/common";
 import type { MemberResponse } from "@/types/member";
 import type { ColumnDef } from "@/types/data-table";
 
 const PAGE_SIZE = 20;
-const FILTER_KEYS = ["name", "track", "status", "payment_status"];
+const FILTER_KEYS = ["name", "email", "track", "status", "department", "studentId", "phone"];
 
 export function MembersPage() {
   const {
@@ -27,9 +27,12 @@ export function MembersPage() {
     size: PAGE_SIZE,
     ...(sorts.length > 0 && { sorts: sorts.map((s) => ({ field: s.field, order: s.direction })) }),
     ...(filters.name && { name: filters.name }),
+    ...(filters.email && { email: filters.email }),
     ...(filters.track && { track: filters.track }),
     ...(filters.status && { status: filters.status }),
-    ...(filters.payment_status && { paymentStatus: filters.payment_status }),
+    ...(filters.department && { department: filters.department }),
+    ...(filters.studentId && { studentId: filters.studentId }),
+    ...(filters.phone && { phone: filters.phone }),
   };
 
   const { data: result, isLoading, isError } = useMembersWithFilters(filter);
@@ -45,12 +48,16 @@ export function MembersPage() {
       sortable: true,
       filterType: "text",
       filterParamKey: "name",
+      className: "w-24",
     },
     {
       id: "email",
       header: "이메일",
       cell: (m) => m.email,
       sortable: true,
+      filterType: "text",
+      filterParamKey: "email",
+      className: "w-48",
     },
     {
       id: "track",
@@ -60,6 +67,7 @@ export function MembersPage() {
       filterType: "enum",
       filterParamKey: "track",
       filterOptions: filterOptions?.tracks.map((t) => ({ value: t, label: t })),
+      className: "w-28",
     },
     {
       id: "status",
@@ -69,15 +77,34 @@ export function MembersPage() {
       filterType: "enum",
       filterParamKey: "status",
       filterOptions: filterOptions?.statuses.map((s) => ({ value: s, label: s })),
+      className: "w-24",
     },
     {
-      id: "paymentStatus",
-      header: "납부",
-      cell: (m) => <Badge variant={paymentVariant(m.paymentStatus)}>{m.paymentStatus}</Badge>,
+      id: "department",
+      header: "학부",
+      cell: (m) => m.department ?? "-",
       sortable: true,
-      filterType: "enum",
-      filterParamKey: "payment_status",
-      filterOptions: filterOptions?.paymentStatuses.map((p) => ({ value: p, label: p })),
+      filterType: "text",
+      filterParamKey: "department",
+      className: "w-32",
+    },
+    {
+      id: "studentId",
+      header: "학번",
+      cell: (m) => m.studentId ?? "-",
+      sortable: true,
+      filterType: "text",
+      filterParamKey: "studentId",
+      className: "w-28",
+    },
+    {
+      id: "phone",
+      header: "전화번호",
+      cell: (m) => m.phone ?? "-",
+      sortable: true,
+      filterType: "text",
+      filterParamKey: "phone",
+      className: "w-32",
     },
   ];
 

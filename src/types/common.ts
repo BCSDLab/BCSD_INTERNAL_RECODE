@@ -27,6 +27,10 @@ export interface MemberFilterInput {
   team?: string;
   paymentStatus?: string;
   name?: string;
+  email?: string;
+  department?: string;
+  studentId?: string;
+  phone?: string;
   page?: number;
   size?: number;
   sorts?: SortFieldInput[];

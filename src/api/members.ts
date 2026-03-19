@@ -7,7 +7,7 @@ const MEMBERS_WITH_FILTERS_QUERY = gql`
   query MembersWithFilters($filter: MemberFilterInput) {
     members(filter: $filter) {
       items {
-        id name email status track paymentStatus
+        id name email status track paymentStatus department studentId phone
       }
       total page size
     }

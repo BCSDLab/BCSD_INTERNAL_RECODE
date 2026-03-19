@@ -31,8 +31,8 @@ export function DataTable<TData>({
   emptyMessage = "데이터가 없습니다.",
 }: DataTableProps<TData>) {
   return (
-    <div className="rounded-lg border">
-      <Table>
+    <div className="overflow-x-auto rounded-lg border">
+      <Table className="table-fixed">
         <TableHeader>
           <TableRow>
             {columns.map((col) => {

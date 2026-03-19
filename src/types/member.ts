@@ -6,6 +6,9 @@ export interface MemberResponse {
   track: string;
   team: string;
   paymentStatus: string;
+  department: string;
+  studentId: string;
+  phone: string;
 }
 
 export interface MemberDetail extends MemberResponse {
