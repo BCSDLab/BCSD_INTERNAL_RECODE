@@ -86,7 +86,7 @@ function EnumFilter({
   };
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-0.5">
       <Input
         value={search}
         onChange={(e) => setSearch(e.target.value)}
@@ -240,7 +240,7 @@ export function ColumnHeaderPopover({
           <span className="text-[10px] text-muted-foreground">{sortPriority}</span>
         )}
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-auto min-w-48 space-y-1 p-1.5" side="bottom">
+      <PopoverContent align="start" className="w-auto min-w-48 space-y-0.5 p-1.5" side="bottom">
         {sortable && onSort && (
           <SortSection currentSort={currentSort} onSort={onSort} />
         )}
