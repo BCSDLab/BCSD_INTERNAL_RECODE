@@ -62,8 +62,11 @@ export function Sidebar() {
           </AvatarFallback>
         </Avatar>
         <div className="grid flex-1 leading-tight">
-          <span className="truncate text-sm font-medium">{member?.name ?? "..."}</span>
-          <span className="truncate text-xs text-muted-foreground">{me.data?.email ?? ""}</span>
+          <span className="truncate text-sm font-medium">
+            {member?.name ?? "..."}
+            {member?.status && <span className="font-normal text-muted-foreground"> · {member.status}</span>}
+          </span>
+          <span className="truncate text-xs text-muted-foreground">{member?.track ?? ""}</span>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger className="rounded-md p-1 hover:bg-accent/50">
