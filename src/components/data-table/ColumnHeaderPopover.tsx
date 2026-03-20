@@ -169,7 +169,7 @@ export function ColumnHeaderPopover({
         {sortable && onSort && (
           <SortSection currentSort={currentSort} onSort={onSort} />
         )}
-        {sortable && hasFilter && <div className="my-1" />}
+        {sortable && hasFilter && <div className="my-0.5" />}
         {filterType === "enum" && filterOptions && onFilterChange && (
           <EnumFilter
             value={filterValue ?? ""}
