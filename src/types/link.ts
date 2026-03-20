@@ -52,5 +52,6 @@ export interface LinkFilterInput {
   title?: string;
   code?: string;
   creatorId?: string;
+  createdAt?: string;
   expired?: string;
 }

@@ -139,6 +139,65 @@ function TextFilter({
   );
 }
 
+function DateFilter({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const [from, to] = value ? value.split("~") : ["", ""];
+  const [fromInput, setFromInput] = useState(from);
+  const [toInput, setToInput] = useState(to);
+
+  const commit = (f: string, t: string) => {
+    if (f || t) {
+      onChange(`${f}~${t}`);
+    } else {
+      onChange("");
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-1">
+        <Input
+          type="date"
+          value={fromInput}
+          onChange={(e) => {
+            setFromInput(e.target.value);
+            commit(e.target.value, toInput);
+          }}
+          className="h-7 text-xs"
+        />
+        <span className="text-xs text-muted-foreground">~</span>
+        <Input
+          type="date"
+          value={toInput}
+          onChange={(e) => {
+            setToInput(e.target.value);
+            commit(fromInput, e.target.value);
+          }}
+          className="h-7 text-xs"
+        />
+      </div>
+      {value && (
+        <button
+          type="button"
+          className="text-left text-xs text-muted-foreground hover:text-foreground"
+          onClick={() => {
+            setFromInput("");
+            setToInput("");
+            onChange("");
+          }}
+        >
+          초기화
+        </button>
+      )}
+    </div>
+  );
+}
+
 export function ColumnHeaderPopover({
   header,
   sortable,
@@ -182,7 +241,7 @@ export function ColumnHeaderPopover({
           <span className="text-[10px] text-muted-foreground">{sortPriority}</span>
         )}
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-48 space-y-1 p-1.5" side="bottom">
+      <PopoverContent align="start" className="w-auto min-w-48 space-y-1 p-1.5" side="bottom">
         {sortable && onSort && (
           <SortSection currentSort={currentSort} onSort={onSort} />
         )}
@@ -199,8 +258,11 @@ export function ColumnHeaderPopover({
             onChange={onFilterChange}
           />
         )}
-        {filterType === "date" && (
-          <p className="py-1 text-xs text-muted-foreground">날짜 필터 (준비 중)</p>
+        {filterType === "date" && onFilterChange && (
+          <DateFilter
+            value={filterValue ?? ""}
+            onChange={onFilterChange}
+          />
         )}
       </PopoverContent>
     </Popover>

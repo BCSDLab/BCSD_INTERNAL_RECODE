@@ -1,6 +1,6 @@
 import type React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Users, Link, QrCode, LogOut, User, ChevronsUpDown } from "lucide-react";
+import { Users, Link, QrCode, LogOut, User, MoreVertical } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -55,24 +55,21 @@ export function Sidebar() {
         ))}
       </nav>
       <Separator />
-      <div className="p-2">
+      <div className="flex items-center gap-2 p-3">
+        <Avatar className="h-8 w-8 rounded-lg">
+          <AvatarFallback className="rounded-lg bg-primary text-primary-foreground text-xs">
+            {member?.name?.charAt(0) ?? me.data?.email?.charAt(0).toUpperCase() ?? "?"}
+          </AvatarFallback>
+        </Avatar>
+        <div className="grid flex-1 leading-tight">
+          <span className="truncate text-sm font-medium">{member?.name ?? "..."}</span>
+          <span className="truncate text-xs text-muted-foreground">{me.data?.email ?? ""}</span>
+        </div>
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex w-full items-center gap-2 rounded-lg p-2 text-left text-sm hover:bg-accent/50 data-[popup-open]:bg-accent">
-            <Avatar className="h-8 w-8 rounded-lg">
-              <AvatarFallback className="rounded-lg bg-primary text-primary-foreground text-xs">
-                {member?.name?.charAt(0) ?? me.data?.email?.charAt(0).toUpperCase() ?? "?"}
-              </AvatarFallback>
-            </Avatar>
-            <div className="grid flex-1 leading-tight">
-              <span className="truncate font-medium">
-                {member?.name ?? "..."}
-                {member?.status && <span className="font-normal text-muted-foreground"> · {member.status}</span>}
-              </span>
-              <span className="truncate text-xs text-muted-foreground">{member?.track ?? ""}</span>
-            </div>
-            <ChevronsUpDown className="ml-auto h-4 w-4 text-muted-foreground" />
+          <DropdownMenuTrigger className="rounded-md p-1 hover:bg-accent/50">
+            <MoreVertical className="h-4 w-4 text-muted-foreground" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent side="top" align="start" className="w-56">
+          <DropdownMenuContent side="right" align="end" className="w-48">
             <DropdownMenuItem onClick={() => navigate(`/members/${me.data?.id}`)}>
               <User className="mr-2 h-4 w-4" />
               내 프로필
