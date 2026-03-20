@@ -13,6 +13,11 @@ export interface ApiError {
 export interface MemberFilters {
   tracks: string[];
   statuses: string[];
+  departments: string[];
+  names: string[];
+  emails: string[];
+  studentIds: string[];
+  phones: string[];
 }
 
 export interface SortFieldInput {

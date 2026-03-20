@@ -12,7 +12,7 @@ const MEMBERS_WITH_FILTERS_QUERY = gql`
       total page size
     }
     memberFilters {
-      tracks statuses
+      tracks statuses departments names emails studentIds phones
     }
   }
 `;
@@ -20,7 +20,7 @@ const MEMBERS_WITH_FILTERS_QUERY = gql`
 const MEMBER_FILTERS_QUERY = gql`
   query MemberFilters {
     memberFilters {
-      tracks statuses
+      tracks statuses departments names emails studentIds phones
     }
   }
 `;
