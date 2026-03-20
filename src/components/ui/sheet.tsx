@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import { Dialog as SheetPrimitive } from "@base-ui/react/dialog"
 
@@ -41,14 +39,16 @@ function ResizeHandle({
   onResize,
 }: {
   side: "left" | "right"
-  onResize: (delta: number) => void
+  onResize: (width: number) => void
 }) {
   const handlePointerDown = (e: React.PointerEvent) => {
     e.preventDefault()
-    const startX = e.clientX
     const onMove = (ev: PointerEvent) => {
-      const delta = side === "right" ? startX - ev.clientX : ev.clientX - startX
-      onResize(delta)
+      if (side === "right") {
+        onResize(window.innerWidth - ev.clientX)
+      } else {
+        onResize(ev.clientX)
+      }
     }
     const onUp = () => {
       document.removeEventListener("pointermove", onMove)
@@ -61,7 +61,7 @@ function ResizeHandle({
   return (
     <div
       className={cn(
-        "absolute inset-y-0 z-50 w-1 cursor-col-resize hover:bg-primary/20 active:bg-primary/30",
+        "absolute inset-y-0 z-50 w-1.5 cursor-col-resize hover:bg-primary/20 active:bg-primary/30",
         side === "right" ? "left-0" : "right-0"
       )}
       onPointerDown={handlePointerDown}
@@ -90,6 +90,11 @@ function SheetContent({
   const [width, setWidth] = React.useState(defaultWidth)
   const canResize = resizable && (side === "left" || side === "right")
 
+  const handleResize = React.useCallback(
+    (w: number) => setWidth(Math.min(maxWidth, Math.max(minWidth, w))),
+    [minWidth, maxWidth]
+  )
+
   return (
     <SheetPortal>
       <SheetOverlay />
@@ -104,12 +109,7 @@ function SheetContent({
         )}
         {...props}
       >
-        {canResize && (
-          <ResizeHandle
-            side={side}
-            onResize={(delta) => setWidth((w) => Math.min(maxWidth, Math.max(minWidth, w + delta)))}
-          />
-        )}
+        {canResize && <ResizeHandle side={side as "left" | "right"} onResize={handleResize} />}
         {children}
         {showCloseButton && (
           <SheetPrimitive.Close
@@ -156,7 +156,10 @@ function SheetTitle({ className, ...props }: SheetPrimitive.Title.Props) {
   return (
     <SheetPrimitive.Title
       data-slot="sheet-title"
-      className={cn("text-base font-medium text-foreground", className)}
+      className={cn(
+        "text-base font-medium text-foreground",
+        className
+      )}
       {...props}
     />
   )

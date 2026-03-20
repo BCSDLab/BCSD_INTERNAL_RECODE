@@ -74,7 +74,7 @@ export function LinksPage() {
       cell: (l) => (
         <Button
           variant="link"
-          className="h-auto max-w-full truncate p-0 text-blue-600"
+          className="h-auto max-w-full justify-start truncate p-0 text-left text-blue-600"
           onClick={(e) => {
             e.stopPropagation();
             navigator.clipboard.writeText(shortUrl(l.code));
