@@ -69,7 +69,12 @@ function EnumFilter({
   options: EnumFilterOption[];
   onChange: (value: string) => void;
 }) {
+  const [search, setSearch] = useState("");
   const selected = parseMultiValue(value);
+
+  const filtered = search
+    ? options.filter((opt) => opt.label.toLowerCase().includes(search.toLowerCase()))
+    : options;
 
   const toggle = (v: string) => {
     const next = new Set(selected);
@@ -82,19 +87,30 @@ function EnumFilter({
   };
 
   return (
-    <div className="flex max-h-40 flex-col gap-0.5 overflow-y-auto">
-      {options.map((opt) => (
-        <label
-          key={opt.value}
-          className="flex cursor-pointer items-center gap-1.5 rounded px-1.5 py-0.5 text-xs hover:bg-accent/50"
-        >
-          <Checkbox
-            checked={selected.has(opt.value)}
-            onCheckedChange={() => toggle(opt.value)}
-          />
-          {opt.label}
-        </label>
-      ))}
+    <div className="flex flex-col gap-1">
+      <Input
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="검색..."
+        className="h-7 text-xs"
+      />
+      <div className="flex max-h-40 flex-col gap-0.5 overflow-y-auto">
+        {filtered.map((opt) => (
+          <label
+            key={opt.value}
+            className="flex cursor-pointer items-center gap-1.5 rounded px-1.5 py-0.5 text-xs hover:bg-accent/50"
+          >
+            <Checkbox
+              checked={selected.has(opt.value)}
+              onCheckedChange={() => toggle(opt.value)}
+            />
+            {opt.label}
+          </label>
+        ))}
+        {filtered.length === 0 && (
+          <span className="px-1.5 py-1 text-xs text-muted-foreground">결과 없음</span>
+        )}
+      </div>
     </div>
   );
 }
