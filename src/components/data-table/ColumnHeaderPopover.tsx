@@ -150,6 +150,7 @@ export function ColumnHeaderPopover({
   filterOptions,
   onFilterChange,
 }: ColumnHeaderPopoverProps) {
+  const [open, setOpen] = useState(false);
   const hasFilter = filterType !== "none";
   const isFilterActive = !!filterValue;
   const showPopover = sortable || hasFilter;
@@ -163,7 +164,7 @@ export function ColumnHeaderPopover({
   }
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         className={cn(
           "inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground",
@@ -181,11 +182,10 @@ export function ColumnHeaderPopover({
           <span className="text-[10px] text-muted-foreground">{sortPriority}</span>
         )}
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-48 p-1.5" side="bottom">
+      <PopoverContent align="start" className="w-48 space-y-1 p-1.5" side="bottom">
         {sortable && onSort && (
           <SortSection currentSort={currentSort} onSort={onSort} />
         )}
-        {sortable && hasFilter && <div className="my-0.5" />}
         {filterType === "enum" && filterOptions && onFilterChange && (
           <EnumFilter
             value={filterValue ?? ""}

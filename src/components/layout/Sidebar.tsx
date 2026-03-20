@@ -10,7 +10,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
 import { useLogout, useMe } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 
@@ -73,25 +72,7 @@ export function Sidebar() {
             </div>
             <ChevronsUpDown className="ml-auto h-4 w-4 text-muted-foreground" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent side="top" align="start" className="w-56 rounded-lg">
-            <div className="px-2 py-2 text-sm">
-              <div className="flex items-center gap-2">
-                <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarFallback className="rounded-lg bg-primary text-primary-foreground text-xs">
-                    {member?.name?.charAt(0) ?? "?"}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="grid flex-1 leading-tight">
-                  <span className="truncate font-medium">{member?.name ?? "..."}</span>
-                  <span className="truncate text-xs text-muted-foreground">{me.data?.email ?? ""}</span>
-                </div>
-              </div>
-              <div className="mt-2 flex items-center gap-1.5">
-                <Badge variant="outline" className="text-xs">{member?.track ?? ""}</Badge>
-                <Badge variant="secondary" className="text-xs">{member?.status ?? ""}</Badge>
-              </div>
-            </div>
-            <DropdownMenuSeparator />
+          <DropdownMenuContent side="top" align="start" className="w-56">
             <DropdownMenuItem onClick={() => navigate(`/members/${me.data?.id}`)}>
               <User className="mr-2 h-4 w-4" />
               내 프로필

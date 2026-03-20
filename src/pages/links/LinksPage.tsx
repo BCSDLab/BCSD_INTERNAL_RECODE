@@ -16,7 +16,7 @@ import type { LinkFilterInput, Link, LinkDetail } from "@/types/link";
 import type { ColumnDef } from "@/types/data-table";
 
 const PAGE_SIZE = 20;
-const FILTER_KEYS = ["creator_id", "expired"];
+const FILTER_KEYS = ["title", "code", "creator_id", "expired"];
 
 function isLinkExpired(link: { expiredAt: string | null; expiresAt: string | null }) {
   if (link.expiredAt) return true;
@@ -40,6 +40,8 @@ export function LinksPage() {
     page,
     size: PAGE_SIZE,
     ...(sorts.length > 0 && { sorts: sorts.map((s) => ({ field: s.field, order: s.direction })) }),
+    ...(filters.title && { title: filters.title }),
+    ...(filters.code && { code: filters.code }),
     ...(filters.creator_id && { creatorId: filters.creator_id }),
     ...(filters.expired && { expired: filters.expired }),
   };
@@ -60,6 +62,8 @@ export function LinksPage() {
       header: "제목",
       cell: (l) => <span className="font-medium">{l.title}</span>,
       sortable: true,
+      filterType: "text",
+      filterParamKey: "title",
     },
     {
       id: "code",
@@ -77,6 +81,9 @@ export function LinksPage() {
           {shortUrl(l.code)}
         </Button>
       ),
+      sortable: true,
+      filterType: "text",
+      filterParamKey: "code",
     },
     {
       id: "creatorId",
@@ -100,6 +107,7 @@ export function LinksPage() {
       cell: (l) => isLinkExpired(l)
         ? <Badge variant="destructive">만료</Badge>
         : <Badge variant="default">활성</Badge>,
+      sortable: true,
       filterType: "enum",
       filterParamKey: "expired",
       filterOptions: [

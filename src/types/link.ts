@@ -49,6 +49,8 @@ export interface LinkFilterInput {
   page?: number;
   size?: number;
   sorts?: { field: string; order: string }[];
+  title?: string;
+  code?: string;
   creatorId?: string;
   expired?: string;
 }
