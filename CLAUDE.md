@@ -55,5 +55,3 @@
 
 ### 백엔드 수정 요청 (미반영)
 - `LinkFilterInput`에 `title`, `code` 필터 추가 (LIKE/ILIKE 검색)
-- `MemberFilterInput`에 `email`, `department`, `studentId`, `phone` 필터 추가 (LIKE/ILIKE 검색)
-- `MemberType`에 `department`, `studentId`, `phone` 필드 추가 (목록 쿼리 반환)
