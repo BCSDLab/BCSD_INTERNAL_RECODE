@@ -105,7 +105,7 @@ export function LinkSheet({ linkId, open, onOpenChange, onEdit }: LinkSheetProps
             <>
               <SheetHeader>
                 <SheetTitle>{detail.title}</SheetTitle>
-                <SheetDescription>{shortUrl(detail.code)}</SheetDescription>
+                <SheetDescription className="truncate">{shortUrl(detail.code)}</SheetDescription>
               </SheetHeader>
               <div className="px-4 pb-4">
                 <dl>

@@ -114,6 +114,28 @@ function EnumFilter({
   );
 }
 
+function TextFilter({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const [input, setInput] = useState(value);
+
+  return (
+    <Input
+      value={input}
+      onChange={(e) => {
+        setInput(e.target.value);
+        onChange(e.target.value);
+      }}
+      placeholder="검색..."
+      className="h-7 text-xs"
+    />
+  );
+}
+
 function DateFilter({
   value,
   onChange,
@@ -224,6 +246,12 @@ export function ColumnHeaderPopover({
         )}
         {filterType === "date" && onFilterChange && (
           <DateFilter
+            value={filterValue ?? ""}
+            onChange={onFilterChange}
+          />
+        )}
+        {filterType === "text" && !filterOptions && onFilterChange && (
+          <TextFilter
             value={filterValue ?? ""}
             onChange={onFilterChange}
           />
