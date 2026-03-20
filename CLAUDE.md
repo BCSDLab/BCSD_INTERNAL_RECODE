@@ -54,4 +54,4 @@
 - `GET /v1/members/{member_id}` → 상세 정보
 
 ### 백엔드 수정 요청 (미반영)
-- `LinkFilterInput`에 `title`, `code` 필터 추가 (LIKE/ILIKE 검색)
+- 없음
