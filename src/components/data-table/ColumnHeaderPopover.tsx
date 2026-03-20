@@ -182,9 +182,11 @@ function DateFilter({
         />
       </div>
       {value && (
-        <button
+        <Button
           type="button"
-          className="text-left text-xs text-muted-foreground hover:text-foreground"
+          variant="ghost"
+          size="sm"
+          className="h-auto p-0 text-xs text-muted-foreground"
           onClick={() => {
             setFromInput("");
             setToInput("");
@@ -192,7 +194,7 @@ function DateFilter({
           }}
         >
           초기화
-        </button>
+        </Button>
       )}
     </div>
   );
