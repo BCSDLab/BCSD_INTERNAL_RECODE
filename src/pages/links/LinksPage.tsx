@@ -16,7 +16,7 @@ import type { LinkFilterInput, Link, LinkDetail } from "@/types/link";
 import type { ColumnDef } from "@/types/data-table";
 
 const PAGE_SIZE = 20;
-const FILTER_KEYS = ["title", "code", "creator_id", "createdAt", "expired"];
+const FILTER_KEYS = ["title", "code", "creator_id", "createdAt", "expired", "expiresAt"];
 
 function isLinkExpired(link: { expiredAt: string | null; expiresAt: string | null }) {
   if (link.expiredAt) return true;
@@ -45,6 +45,7 @@ export function LinksPage() {
     ...(filters.creator_id && { creatorId: filters.creator_id }),
     ...(filters.createdAt && { createdAt: filters.createdAt }),
     ...(filters.expired && { expired: filters.expired }),
+    ...(filters.expiresAt && { expiresAt: filters.expiresAt }),
   };
 
   const { data: filterOptions } = useLinkFilters();
@@ -122,6 +123,8 @@ export function LinksPage() {
       header: "만료일",
       cell: (l) => l.expiresAt ? formatDate(l.expiresAt) : "무기한",
       sortable: true,
+      filterType: "date",
+      filterParamKey: "expiresAt",
     },
   ];
 

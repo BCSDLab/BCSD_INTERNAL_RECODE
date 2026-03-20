@@ -54,4 +54,5 @@ export interface LinkFilterInput {
   creatorId?: string;
   createdAt?: string;
   expired?: string;
+  expiresAt?: string;
 }

@@ -8,7 +8,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Popover, PopoverContent, PopoverTrigger,
 } from "@/components/ui/popover";
-import { useDebounce } from "@/hooks/use-debounce";
 import { cn } from "@/lib/utils";
 import type { SortDirection, ColumnFilterType, EnumFilterOption } from "@/types/data-table";
 
@@ -112,30 +111,6 @@ function EnumFilter({
         )}
       </div>
     </div>
-  );
-}
-
-function TextFilter({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  const [input, setInput] = useState(value);
-  const debouncedInput = useDebounce(input, 300);
-
-  if (debouncedInput !== value) {
-    onChange(debouncedInput);
-  }
-
-  return (
-    <Input
-      value={input}
-      onChange={(e) => setInput(e.target.value)}
-      placeholder="검색..."
-      className="h-7 text-xs"
-    />
   );
 }
 
@@ -247,22 +222,16 @@ export function ColumnHeaderPopover({
         {sortable && onSort && (
           <SortSection currentSort={currentSort} onSort={onSort} />
         )}
-        {filterType === "enum" && filterOptions && onFilterChange && (
-          <EnumFilter
-            value={filterValue ?? ""}
-            options={filterOptions}
-            onChange={onFilterChange}
-          />
-        )}
-        {filterType === "text" && onFilterChange && (
-          <TextFilter
-            value={filterValue ?? ""}
-            onChange={onFilterChange}
-          />
-        )}
         {filterType === "date" && onFilterChange && (
           <DateFilter
             value={filterValue ?? ""}
+            onChange={onFilterChange}
+          />
+        )}
+        {hasFilter && filterOptions && filterOptions.length > 0 && onFilterChange && (
+          <EnumFilter
+            value={filterValue ?? ""}
+            options={filterOptions}
             onChange={onFilterChange}
           />
         )}
