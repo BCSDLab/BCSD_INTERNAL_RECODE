@@ -49,7 +49,7 @@ export function MembersPage() {
       filterType: "enum",
       filterParamKey: "track",
       filterOptions: filterOptions?.tracks.map((t) => ({ value: t, label: t })),
-      className: "w-28",
+      className: "w-[10%]",
     },
     {
       id: "status",
@@ -59,7 +59,7 @@ export function MembersPage() {
       filterType: "enum",
       filterParamKey: "status",
       filterOptions: filterOptions?.statuses.map((s) => ({ value: s, label: s })),
-      className: "w-24",
+      className: "w-[10%]",
     },
     {
       id: "name",
@@ -68,7 +68,7 @@ export function MembersPage() {
       sortable: true,
       filterType: "text",
       filterParamKey: "name",
-      className: "w-24",
+      className: "w-[12%]",
     },
     {
       id: "department",
@@ -77,7 +77,7 @@ export function MembersPage() {
       sortable: true,
       filterType: "text",
       filterParamKey: "department",
-      className: "w-32",
+      className: "w-[15%]",
     },
     {
       id: "studentId",
@@ -86,7 +86,7 @@ export function MembersPage() {
       sortable: true,
       filterType: "text",
       filterParamKey: "studentId",
-      className: "w-28",
+      className: "w-[12%]",
     },
     {
       id: "phone",
@@ -95,16 +95,16 @@ export function MembersPage() {
       sortable: true,
       filterType: "text",
       filterParamKey: "phone",
-      className: "w-32",
+      className: "w-[15%]",
     },
     {
       id: "email",
       header: "이메일",
-      cell: (m) => m.email,
+      cell: (m) => <span className="break-all">{m.email}</span>,
       sortable: true,
       filterType: "text",
       filterParamKey: "email",
-      className: "w-48",
+      className: "w-[26%]",
     },
   ];
 

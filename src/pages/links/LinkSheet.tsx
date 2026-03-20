@@ -105,7 +105,7 @@ export function LinkSheet({ linkId, open, onOpenChange, onEdit }: LinkSheetProps
             <>
               <SheetHeader>
                 <SheetTitle>{detail.title}</SheetTitle>
-                <SheetDescription className="truncate">{shortUrl(detail.code)}</SheetDescription>
+                <SheetDescription className="break-all">{shortUrl(detail.code)}</SheetDescription>
               </SheetHeader>
               <div className="px-4 pb-4">
                 <dl>
@@ -120,10 +120,10 @@ export function LinkSheet({ linkId, open, onOpenChange, onEdit }: LinkSheetProps
                     </a>
                   </DetailRow>
                   <Separator />
-                  <DetailRow label="단축 URL" className="break-all">
+                  <DetailRow label="단축 URL">
                     <Button
                       variant="link"
-                      className="h-auto p-0 text-blue-600"
+                      className="h-auto whitespace-normal break-all p-0 text-left text-blue-600"
                       onClick={() => {
                         navigator.clipboard.writeText(shortUrl(detail.code));
                         toast.success("단축 URL이 복사되었습니다.");
