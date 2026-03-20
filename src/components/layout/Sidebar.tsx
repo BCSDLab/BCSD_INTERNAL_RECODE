@@ -69,10 +69,22 @@ export function Sidebar() {
           <span className="truncate text-xs text-muted-foreground">{member?.track ?? ""}</span>
         </div>
         <DropdownMenu>
-          <DropdownMenuTrigger className="rounded-md p-1 hover:bg-accent/50">
+          <DropdownMenuTrigger className="rounded-md p-1.5 hover:bg-accent data-[popup-open]:bg-accent">
             <MoreVertical className="h-4 w-4 text-muted-foreground" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent side="right" align="end" className="w-48">
+          <DropdownMenuContent side="right" align="end" className="w-52 rounded-lg">
+            <div className="flex items-center gap-2 px-2 py-1.5">
+              <Avatar className="h-8 w-8 rounded-lg">
+                <AvatarFallback className="rounded-lg bg-primary text-primary-foreground text-xs">
+                  {member?.name?.charAt(0) ?? "?"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="grid flex-1 leading-tight">
+                <span className="truncate text-sm font-medium">{member?.name ?? "..."}</span>
+                <span className="truncate text-xs text-muted-foreground">{me.data?.email ?? ""}</span>
+              </div>
+            </div>
+            <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => navigate(`/members/${me.data?.id}`)}>
               <User className="mr-2 h-4 w-4" />
               내 프로필
