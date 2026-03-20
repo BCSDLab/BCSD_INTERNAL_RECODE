@@ -23,7 +23,7 @@ export function MemberSheet({ memberId, open, onOpenChange }: MemberSheetProps) 
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="overflow-y-auto">
+      <SheetContent side="right" resizable className="overflow-y-auto">
         {isLoading && (
           <>
             <SheetHeader>

@@ -66,6 +66,7 @@ export function LinksPage() {
       sortable: true,
       filterType: "text",
       filterParamKey: "title",
+      className: "w-[12%]",
     },
     {
       id: "code",
@@ -73,7 +74,7 @@ export function LinksPage() {
       cell: (l) => (
         <Button
           variant="link"
-          className="h-auto whitespace-normal break-all p-0 text-left text-blue-600"
+          className="h-auto max-w-full truncate p-0 text-blue-600"
           onClick={(e) => {
             e.stopPropagation();
             navigator.clipboard.writeText(shortUrl(l.code));
@@ -86,6 +87,7 @@ export function LinksPage() {
       sortable: true,
       filterType: "text",
       filterParamKey: "code",
+      className: "w-[30%]",
     },
     {
       id: "creatorId",

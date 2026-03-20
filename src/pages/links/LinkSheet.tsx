@@ -78,7 +78,7 @@ export function LinkSheet({ linkId, open, onOpenChange, onEdit }: LinkSheetProps
   return (
     <>
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent side="right" className="overflow-y-auto">
+        <SheetContent side="right" resizable className="overflow-y-auto">
           {isLoading && (
             <>
               <SheetHeader>
