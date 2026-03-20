@@ -53,10 +53,7 @@
 - `GET /v1/members` — 필터/페이지네이션 → `{ items, total, page, size }`
 - `GET /v1/members/{member_id}` → 상세 정보
 
-### 백엔드 수정 요청 (아직 미반영)
-- 로그인/회원가입 응답에 httpOnly cookie (`Set-Cookie`) 설정 필요
-- `GET /v1/auth/me` 엔드포인트 추가 필요 (쿠키에서 JWT 읽어서 사용자 정보 반환)
-- `POST /v1/auth/logout` 엔드포인트 추가 필요 (쿠키 삭제)
-- `GET /v1/members/filters` 엔드포인트 추가 필요 (`{ tracks, statuses, payment_statuses }` 반환)
-- `RegisterRequest`에 `name` 필드 추가, `firebase_token` 제거 필요
-- `register()` 서비스에서 `profile["name"]` 대신 요청의 `name` 사용하도록 변경
+### 백엔드 수정 요청 (미반영)
+- `LinkFilterInput`에 `title`, `code` 필터 추가 (LIKE/ILIKE 검색)
+- `MemberFilterInput`에 `email`, `department`, `studentId`, `phone` 필터 추가 (LIKE/ILIKE 검색)
+- `MemberType`에 `department`, `studentId`, `phone` 필드 추가 (목록 쿼리 반환)
