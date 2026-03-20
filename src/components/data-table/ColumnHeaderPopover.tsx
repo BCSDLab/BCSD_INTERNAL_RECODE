@@ -35,7 +35,7 @@ function SortSection({
       <Button
         variant={currentSort === "asc" ? "default" : "ghost"}
         size="sm"
-        className="h-6 flex-1 gap-1 text-xs"
+        className="h-8 flex-1 gap-1 text-xs"
         onClick={() => onSort(currentSort === "asc" ? null : "asc")}
       >
         <ArrowUp className="h-3 w-3" />
@@ -44,7 +44,7 @@ function SortSection({
       <Button
         variant={currentSort === "desc" ? "default" : "ghost"}
         size="sm"
-        className="h-6 flex-1 gap-1 text-xs"
+        className="h-8 flex-1 gap-1 text-xs"
         onClick={() => onSort(currentSort === "desc" ? null : "desc")}
       >
         <ArrowDown className="h-3 w-3" />
