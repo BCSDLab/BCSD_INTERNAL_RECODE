@@ -13,6 +13,10 @@ import { ExpiredPage } from "@/pages/expired/ExpiredPage";
 import { ApplyLayout } from "@/components/layout/ApplyLayout";
 import { ApplyPage } from "@/pages/apply/ApplyPage";
 import { ApplyStatusPage } from "@/pages/apply/ApplyStatusPage";
+import { ApplicationsPage } from "@/pages/admin/ApplicationsPage";
+import { RecruitmentPage } from "@/pages/admin/RecruitmentPage";
+import { ConvertPage } from "@/pages/convert/ConvertPage";
+import { ConvertStatusPage } from "@/pages/convert/ConvertStatusPage";
 import { Toaster } from "@/components/ui/sonner";
 
 export default function App() {
@@ -30,12 +34,16 @@ export default function App() {
             <Route path="/members/:memberId" element={<MemberDetailPage />} />
             <Route path="/links" element={<LinksPage />} />
             <Route path="/qr" element={<QrPage />} />
+            <Route path="/admin/applications" element={<ApplicationsPage />} />
+            <Route path="/admin/recruitment" element={<RecruitmentPage />} />
           </Route>
         </Route>
         <Route element={<ProtectedRoute />}>
           <Route element={<ApplyLayout />}>
             <Route path="/apply" element={<ApplyPage />} />
             <Route path="/apply/status" element={<ApplyStatusPage />} />
+            <Route path="/convert" element={<ConvertPage />} />
+            <Route path="/convert/status" element={<ConvertStatusPage />} />
           </Route>
         </Route>
         <Route path="/expired" element={<ExpiredPage />} />

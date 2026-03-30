@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import {
   Users, Link, QrCode, LogOut, User, ChevronsUpDown,
+  ClipboardList, Calendar,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -22,6 +23,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarGroupLabel,
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { useLogout, useMe } from "@/hooks/use-auth";
@@ -30,6 +32,11 @@ const NAV_ITEMS = [
   { to: "/members", icon: Users, label: "멤버 관리", end: true },
   { to: "/links", icon: Link, label: "URL 단축" },
   { to: "/qr", icon: QrCode, label: "QR 코드" },
+];
+
+const ADMIN_NAV_ITEMS = [
+  { to: "/admin/applications", icon: ClipboardList, label: "지원자 관리" },
+  { to: "/admin/recruitment", icon: Calendar, label: "모집 기간 관리" },
 ];
 
 export function AppSidebar() {
@@ -62,6 +69,21 @@ export function AppSidebar() {
               {NAV_ITEMS.map((item) => (
                 <SidebarMenuItem key={item.to}>
                   <SidebarMenuButton render={<NavLink to={item.to} end={item.end} />}>
+                    <item.icon />
+                    <span>{item.label}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>관리</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {ADMIN_NAV_ITEMS.map((item) => (
+                <SidebarMenuItem key={item.to}>
+                  <SidebarMenuButton render={<NavLink to={item.to} />}>
                     <item.icon />
                     <span>{item.label}</span>
                   </SidebarMenuButton>
