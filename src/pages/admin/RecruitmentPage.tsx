@@ -114,18 +114,21 @@ export function RecruitmentPage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold">모집 기간 관리</h1>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <RecruitmentCard
-          type="beginner"
-          label="비기너 모집"
-          description="비기너 지원 모집 기간을 관리합니다."
-        />
-        <RecruitmentCard
-          type="conversion"
-          label="즉시 전환"
-          description="즉시 전환 신청 기간을 관리합니다."
-        />
-      </div>
+      <RecruitmentCard
+        type="beginner"
+        label="비기너 모집"
+        description="비기너 지원 모집 기간을 관리합니다."
+      />
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <CardTitle>즉시 전환</CardTitle>
+            <Badge variant="default">상시 모집</Badge>
+          </div>
+          <CardDescription>즉시 전환 신청은 모집 기간 제한 없이 상시 가능합니다.</CardDescription>
+        </CardHeader>
+      </Card>
     </div>
   );
 }

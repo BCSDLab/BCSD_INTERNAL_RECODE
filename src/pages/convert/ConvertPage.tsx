@@ -15,7 +15,6 @@ import { useMemberFilters } from "@/hooks/use-members";
 import {
   useMyApplication,
   useFormTemplate,
-  useRecruitmentPeriod,
   useSubmitApplication,
 } from "@/hooks/use-applications";
 import { toast } from "sonner";
@@ -25,12 +24,11 @@ export function ConvertPage() {
   const me = useMe();
   const member = me.data?.member;
   const { data: myApp, isLoading: appLoading } = useMyApplication();
-  const { data: recruitment, isLoading: recruitLoading } = useRecruitmentPeriod("conversion");
   const { data: formTemplate, isLoading: formLoading } = useFormTemplate("conversion");
   const { data: filterData } = useMemberFilters();
   const submitMutation = useSubmitApplication();
 
-  const isLoading = me.isLoading || appLoading || recruitLoading || formLoading;
+  const isLoading = me.isLoading || appLoading || formLoading;
 
   if (isLoading) {
     return (
@@ -63,22 +61,6 @@ export function ConvertPage() {
     return null;
   }
 
-  // 모집 기간 아님
-  if (!recruitment?.isActive) {
-    return (
-      <Card>
-        <CardHeader className="text-center">
-          <CardTitle>현재 즉시 전환 신청 기간이 아닙니다</CardTitle>
-          <CardDescription>
-            {recruitment
-              ? `신청 기간: ${recruitment.startDate} ~ ${recruitment.endDate}`
-              : "다음 신청 기간을 기다려주세요."}
-          </CardDescription>
-        </CardHeader>
-      </Card>
-    );
-  }
-
   // 폼 로드 실패
   if (!formTemplate) {
     return (
@@ -96,7 +78,7 @@ export function ConvertPage() {
       </CardHeader>
       <CardContent>
         <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200">
-          가입비 없음
+          가입비 없음 — 전환 승인 시 레귤러 회비를 납부합니다.
         </div>
         <DynamicForm
           questions={formTemplate.questions}
