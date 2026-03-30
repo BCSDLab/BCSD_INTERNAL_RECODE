@@ -10,6 +10,8 @@ import { MemberDetailPage } from "@/pages/members/MemberDetailPage";
 import { LinksPage } from "@/pages/links/LinksPage";
 import { QrPage } from "@/pages/qr/QrPage";
 import { ExpiredPage } from "@/pages/expired/ExpiredPage";
+import { ApplyLayout } from "@/components/layout/ApplyLayout";
+import { ApplyPage } from "@/pages/apply/ApplyPage";
 import { Toaster } from "@/components/ui/sonner";
 
 export default function App() {
@@ -27,6 +29,11 @@ export default function App() {
             <Route path="/members/:memberId" element={<MemberDetailPage />} />
             <Route path="/links" element={<LinksPage />} />
             <Route path="/qr" element={<QrPage />} />
+          </Route>
+        </Route>
+        <Route element={<ProtectedRoute />}>
+          <Route element={<ApplyLayout />}>
+            <Route path="/apply" element={<ApplyPage />} />
           </Route>
         </Route>
         <Route path="/expired" element={<ExpiredPage />} />
