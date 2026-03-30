@@ -2,50 +2,63 @@ export type QuestionType = "short_text" | "long_text" | "multiple_choice" | "che
 
 export interface FormQuestion {
   id: string;
-  type: string;
+  type: QuestionType;
   label: string;
-  required: string;
-  options: string[];
-  sortOrder: number;
+  required: boolean;
+  options?: string[];
+  order: number;
 }
 
-export interface Form {
+export interface FormTemplate {
   id: string;
-  title: string;
-  description: string;
-  recruitmentId: string;
-  type: string;
-  isActive: string;
-  createdBy: string;
-  createdAt: string;
-  updatedAt: string;
+  type: "beginner" | "conversion";
   questions: FormQuestion[];
-}
-
-export interface Answer {
-  id: string;
-  questionId: string;
-  value: string;
-}
-
-export interface Application {
-  id: string;
-  formId: string;
-  memberId: string;
-  status: string;
-  submittedAt: string;
-  approvedAt: string | null;
-  approvedBy: string | null;
   updatedAt: string;
-  answers: Answer[];
 }
 
-export interface SubmitInput {
-  formId: string;
-  answers: AnswerInput[];
-}
-
-export interface AnswerInput {
+export interface ApplicationAnswer {
   questionId: string;
-  value: string;
+  value: string | string[];
+}
+
+export interface ApplicationSubmission {
+  formTemplateId: string;
+  answers: ApplicationAnswer[];
+  track: string;
+}
+
+export type ApplicationStatus = "pending_payment" | "paid" | "approved" | "cancelled";
+
+export interface PaymentInfo {
+  bank: string;
+  account: string;
+  amount: number;
+  holder: string;
+}
+
+export interface MyApplication {
+  id: string;
+  status: ApplicationStatus;
+  formTemplateId: string;
+  answers: ApplicationAnswer[];
+  track: string;
+  submittedAt: string;
+  paymentInfo?: PaymentInfo;
+}
+
+export interface RecruitmentPeriod {
+  id: string;
+  type: "beginner" | "conversion";
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
+}
+
+export interface ApplicationListItem {
+  id: string;
+  applicantName: string;
+  applicantEmail: string;
+  track: string;
+  status: ApplicationStatus;
+  submittedAt: string;
 }

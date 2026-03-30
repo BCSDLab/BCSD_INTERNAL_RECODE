@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import {
   Card,
@@ -11,24 +11,26 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { DynamicForm } from "@/components/common/DynamicForm";
 import { useMe } from "@/hooks/use-auth";
+import { useMemberFilters } from "@/hooks/use-members";
 import {
-  useMyApplications,
-  useForm,
+  useMyApplication,
+  useFormTemplate,
+  useRecruitmentPeriod,
   useSubmitApplication,
 } from "@/hooks/use-applications";
 import { toast } from "sonner";
 
 export function ApplyPage() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const formId = searchParams.get("formId") ?? "";
   const me = useMe();
   const member = me.data?.member;
-  const { data: myApps, isLoading: appsLoading } = useMyApplications();
-  const { data: form, isLoading: formLoading } = useForm(formId);
+  const { data: myApp, isLoading: appLoading } = useMyApplication();
+  const { data: recruitment, isLoading: recruitLoading } = useRecruitmentPeriod("beginner");
+  const { data: formTemplate, isLoading: formLoading } = useFormTemplate("beginner");
+  const { data: filterData } = useMemberFilters();
   const submitMutation = useSubmitApplication();
 
-  const isLoading = me.isLoading || appsLoading || formLoading;
+  const isLoading = me.isLoading || appLoading || recruitLoading || formLoading;
 
   if (isLoading) {
     return (
@@ -56,34 +58,29 @@ export function ApplyPage() {
   }
 
   // 이미 지원서 제출
-  if (myApps && myApps.length > 0 && myApps.some((a) => a.status !== "cancelled")) {
+  if (myApp && myApp.status !== "cancelled") {
     navigate("/apply/status", { replace: true });
     return null;
   }
 
-  // formId 없음
-  if (!formId) {
-    return (
-      <Alert variant="destructive">
-        <AlertDescription>지원 폼 ID가 지정되지 않았습니다.</AlertDescription>
-      </Alert>
-    );
-  }
-
-  // 모집 기간 아님 (form.isActive로 판단)
-  if (form && !form.isActive) {
+  // 모집 기간 아님
+  if (!recruitment?.isActive) {
     return (
       <Card>
         <CardHeader className="text-center">
           <CardTitle>현재 모집 기간이 아닙니다</CardTitle>
-          <CardDescription>다음 모집을 기다려주세요.</CardDescription>
+          <CardDescription>
+            {recruitment
+              ? `모집 기간: ${recruitment.startDate} ~ ${recruitment.endDate}`
+              : "다음 모집을 기다려주세요."}
+          </CardDescription>
         </CardHeader>
       </Card>
     );
   }
 
   // 폼 로드 실패
-  if (!form) {
+  if (!formTemplate) {
     return (
       <Alert variant="destructive">
         <AlertDescription>지원 폼을 불러올 수 없습니다.</AlertDescription>
@@ -94,15 +91,22 @@ export function ApplyPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{form.title}</CardTitle>
-        <CardDescription>{form.description}</CardDescription>
+        <CardTitle>비기너 지원</CardTitle>
+        <CardDescription>BCSD 비기너로 지원합니다.</CardDescription>
       </CardHeader>
       <CardContent>
         <DynamicForm
-          questions={form.questions}
-          onSubmit={(answers) => {
+          questions={formTemplate.questions}
+          fixedFields={{
+            name: member?.name ?? "",
+            email: me.data?.email ?? "",
+            schoolEmail: "",
+            track: member?.track ?? "",
+          }}
+          trackOptions={filterData?.tracks ?? []}
+          onSubmit={(answers, track) => {
             submitMutation.mutate(
-              { formId: form.id, answers },
+              { formTemplateId: formTemplate.id, answers, track },
               {
                 onSuccess: () => {
                   toast.success("지원이 완료되었습니다.");

@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import {
   Card,
@@ -11,24 +11,26 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { DynamicForm } from "@/components/common/DynamicForm";
 import { useMe } from "@/hooks/use-auth";
+import { useMemberFilters } from "@/hooks/use-members";
 import {
-  useMyApplications,
-  useForm,
+  useMyApplication,
+  useFormTemplate,
+  useRecruitmentPeriod,
   useSubmitApplication,
 } from "@/hooks/use-applications";
 import { toast } from "sonner";
 
 export function ConvertPage() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const formId = searchParams.get("formId") ?? "";
   const me = useMe();
   const member = me.data?.member;
-  const { data: myApps, isLoading: appsLoading } = useMyApplications();
-  const { data: form, isLoading: formLoading } = useForm(formId);
+  const { data: myApp, isLoading: appLoading } = useMyApplication();
+  const { data: recruitment, isLoading: recruitLoading } = useRecruitmentPeriod("conversion");
+  const { data: formTemplate, isLoading: formLoading } = useFormTemplate("conversion");
+  const { data: filterData } = useMemberFilters();
   const submitMutation = useSubmitApplication();
 
-  const isLoading = me.isLoading || appsLoading || formLoading;
+  const isLoading = me.isLoading || appLoading || recruitLoading || formLoading;
 
   if (isLoading) {
     return (
@@ -56,34 +58,29 @@ export function ConvertPage() {
   }
 
   // 이미 지원서 제출
-  if (myApps && myApps.length > 0 && myApps.some((a) => a.status !== "cancelled")) {
+  if (myApp && myApp.status !== "cancelled") {
     navigate("/convert/status", { replace: true });
     return null;
   }
 
-  // formId 없음
-  if (!formId) {
-    return (
-      <Alert variant="destructive">
-        <AlertDescription>전환 신청 폼 ID가 지정되지 않았습니다.</AlertDescription>
-      </Alert>
-    );
-  }
-
-  // 모집 기간 아님 (form.isActive로 판단)
-  if (form && !form.isActive) {
+  // 모집 기간 아님
+  if (!recruitment?.isActive) {
     return (
       <Card>
         <CardHeader className="text-center">
           <CardTitle>현재 즉시 전환 신청 기간이 아닙니다</CardTitle>
-          <CardDescription>다음 신청 기간을 기다려주세요.</CardDescription>
+          <CardDescription>
+            {recruitment
+              ? `신청 기간: ${recruitment.startDate} ~ ${recruitment.endDate}`
+              : "다음 신청 기간을 기다려주세요."}
+          </CardDescription>
         </CardHeader>
       </Card>
     );
   }
 
   // 폼 로드 실패
-  if (!form) {
+  if (!formTemplate) {
     return (
       <Alert variant="destructive">
         <AlertDescription>신청 폼을 불러올 수 없습니다.</AlertDescription>
@@ -94,18 +91,25 @@ export function ConvertPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{form.title}</CardTitle>
-        <CardDescription>{form.description}</CardDescription>
+        <CardTitle>즉시 전환 신청</CardTitle>
+        <CardDescription>비기너 과정 없이 바로 레귤러로 합류합니다.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200">
           가입비 없음
         </div>
         <DynamicForm
-          questions={form.questions}
-          onSubmit={(answers) => {
+          questions={formTemplate.questions}
+          fixedFields={{
+            name: member?.name ?? "",
+            email: me.data?.email ?? "",
+            schoolEmail: "",
+            track: member?.track ?? "",
+          }}
+          trackOptions={filterData?.tracks ?? []}
+          onSubmit={(answers, track) => {
             submitMutation.mutate(
-              { formId: form.id, answers },
+              { formTemplateId: formTemplate.id, answers, track },
               {
                 onSuccess: () => {
                   toast.success("즉시 전환 신청이 완료되었습니다.");

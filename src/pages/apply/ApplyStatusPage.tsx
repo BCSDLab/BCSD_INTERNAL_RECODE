@@ -22,16 +22,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { DetailRow } from "@/components/common/DetailRow";
-import { useMyApplications, useCancelApplication } from "@/hooks/use-applications";
+import { useMyApplication, useCancelApplication } from "@/hooks/use-applications";
 import { toast } from "sonner";
-import { applicationStatusLabel, applicationStatusVariant, formatDate } from "@/lib/format";
+import { applicationStatusLabel, applicationStatusVariant } from "@/lib/format";
 
 export function ApplyStatusPage() {
   const navigate = useNavigate();
-  const { data: myApps, isLoading } = useMyApplications();
+  const { data: app, isLoading } = useMyApplication();
   const cancelMutation = useCancelApplication();
-
-  const app = myApps?.find((a) => a.status !== "cancelled") ?? null;
 
   if (isLoading) {
     return (
@@ -43,7 +41,7 @@ export function ApplyStatusPage() {
     );
   }
 
-  if (!app) {
+  if (!app || app.status === "cancelled") {
     navigate("/apply", { replace: true });
     return null;
   }
@@ -68,7 +66,9 @@ export function ApplyStatusPage() {
       </CardHeader>
       <CardContent className="space-y-4">
         <dl>
-          <DetailRow label="지원일">{formatDate(app.submittedAt)}</DetailRow>
+          <DetailRow label="지원일">{app.submittedAt.slice(0, 10)}</DetailRow>
+          <Separator />
+          <DetailRow label="희망 트랙">{app.track}</DetailRow>
           <Separator />
           <DetailRow label="상태">
             <Badge variant={applicationStatusVariant(app.status)}>
@@ -77,50 +77,53 @@ export function ApplyStatusPage() {
           </DetailRow>
         </dl>
 
-        {app.answers.length > 0 && (
+        {app.status === "pending_payment" && app.paymentInfo && (
           <>
             <Separator />
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium text-muted-foreground">제출한 답변</h3>
-              {app.answers.map((answer) => (
-                <div key={answer.id} className="rounded-lg border p-3">
-                  <p className="text-xs text-muted-foreground">질문 ID: {answer.questionId}</p>
-                  <p className="text-sm">{answer.value}</p>
-                </div>
-              ))}
+            <div className="space-y-2 rounded-lg border p-4">
+              <h3 className="text-sm font-medium">납부 안내</h3>
+              <dl className="text-sm">
+                <DetailRow label="은행">{app.paymentInfo.bank}</DetailRow>
+                <DetailRow label="계좌번호">{app.paymentInfo.account}</DetailRow>
+                <DetailRow label="금액">{app.paymentInfo.amount.toLocaleString()}원</DetailRow>
+                <DetailRow label="예금주">{app.paymentInfo.holder}</DetailRow>
+              </dl>
             </div>
+            <AlertDialog>
+              <AlertDialogTrigger className="inline-flex h-9 w-full items-center justify-center rounded-md border border-input bg-transparent px-4 text-sm shadow-xs hover:bg-accent/50">
+                지원 취소
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>지원을 취소하시겠습니까?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    취소 후에는 다시 지원할 수 있습니다.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>돌아가기</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => {
+                      cancelMutation.mutate(app.id, {
+                        onSuccess: () => {
+                          toast.success("지원이 취소되었습니다.");
+                          navigate("/apply");
+                        },
+                      });
+                    }}
+                  >
+                    취소하기
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </>
         )}
 
-        {app.status !== "approved" && app.status !== "cancelled" && (
-          <AlertDialog>
-            <AlertDialogTrigger className="inline-flex h-9 w-full items-center justify-center rounded-md border border-input bg-transparent px-4 text-sm shadow-xs hover:bg-accent/50">
-              지원 취소
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>지원을 취소하시겠습니까?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  취소 후에는 다시 지원할 수 있습니다.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>돌아가기</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => {
-                    cancelMutation.mutate(app.id, {
-                      onSuccess: () => {
-                        toast.success("지원이 취소되었습니다.");
-                        navigate("/apply");
-                      },
-                    });
-                  }}
-                >
-                  취소하기
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+        {app.status === "paid" && (
+          <p className="text-center text-sm text-muted-foreground">
+            납부가 확인되었습니다. 승인을 기다려주세요.
+          </p>
         )}
 
         {app.status === "approved" && (

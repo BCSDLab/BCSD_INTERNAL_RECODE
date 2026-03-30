@@ -13,7 +13,8 @@ export function statusVariant(status: string) {
 
 export function applicationStatusLabel(status: string): string {
   switch (status) {
-    case "submitted": return "제출 완료";
+    case "pending_payment": return "납부 대기";
+    case "paid": return "납부 확인";
     case "approved": return "승인";
     case "cancelled": return "취소";
     default: return status;
@@ -23,7 +24,8 @@ export function applicationStatusLabel(status: string): string {
 export function applicationStatusVariant(status: string) {
   switch (status) {
     case "approved": return "default" as const;
-    case "submitted": return "secondary" as const;
+    case "paid": return "secondary" as const;
+    case "pending_payment": return "outline" as const;
     case "cancelled": return "destructive" as const;
     default: return "secondary" as const;
   }
