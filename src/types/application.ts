@@ -2,63 +2,50 @@ export type QuestionType = "short_text" | "long_text" | "multiple_choice" | "che
 
 export interface FormQuestion {
   id: string;
-  type: QuestionType;
+  type: string;
   label: string;
-  required: boolean;
-  options?: string[];
-  order: number;
+  required: string;
+  options: string[];
+  sortOrder: number;
 }
 
-export interface FormTemplate {
+export interface Form {
   id: string;
-  type: "beginner" | "conversion";
-  questions: FormQuestion[];
+  title: string;
+  description: string;
+  recruitmentId: string;
+  type: string;
+  isActive: string;
+  createdBy: string;
+  createdAt: string;
   updatedAt: string;
+  questions: FormQuestion[];
 }
 
-export interface ApplicationAnswer {
+export interface Answer {
+  id: string;
   questionId: string;
-  value: string | string[];
+  value: string;
 }
 
-export interface ApplicationSubmission {
-  formTemplateId: string;
-  answers: ApplicationAnswer[];
-  track: string;
-}
-
-export type ApplicationStatus = "pending_payment" | "paid" | "approved" | "cancelled";
-
-export interface PaymentInfo {
-  bank: string;
-  account: string;
-  amount: number;
-  holder: string;
-}
-
-export interface MyApplication {
+export interface Application {
   id: string;
-  status: ApplicationStatus;
-  formTemplateId: string;
-  answers: ApplicationAnswer[];
-  track: string;
+  formId: string;
+  memberId: string;
+  status: string;
   submittedAt: string;
-  paymentInfo?: PaymentInfo;
+  approvedAt: string | null;
+  approvedBy: string | null;
+  updatedAt: string;
+  answers: Answer[];
 }
 
-export interface RecruitmentPeriod {
-  id: string;
-  type: "beginner" | "conversion";
-  startDate: string;
-  endDate: string;
-  isActive: boolean;
+export interface SubmitInput {
+  formId: string;
+  answers: AnswerInput[];
 }
 
-export interface ApplicationListItem {
-  id: string;
-  applicantName: string;
-  applicantEmail: string;
-  track: string;
-  status: ApplicationStatus;
-  submittedAt: string;
+export interface AnswerInput {
+  questionId: string;
+  value: string;
 }

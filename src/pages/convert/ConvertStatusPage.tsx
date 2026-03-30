@@ -10,12 +10,28 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { DetailRow } from "@/components/common/DetailRow";
-import { useMyApplication } from "@/hooks/use-applications";
+import { useMyApplications, useCancelApplication } from "@/hooks/use-applications";
+import { toast } from "sonner";
+import { applicationStatusLabel, applicationStatusVariant, formatDate } from "@/lib/format";
 
 export function ConvertStatusPage() {
   const navigate = useNavigate();
-  const { data: app, isLoading } = useMyApplication();
+  const { data: myApps, isLoading } = useMyApplications();
+  const cancelMutation = useCancelApplication();
+
+  const app = myApps?.find((a) => a.status !== "cancelled") ?? null;
 
   if (isLoading) {
     return (
@@ -27,7 +43,7 @@ export function ConvertStatusPage() {
     );
   }
 
-  if (!app || app.status === "cancelled") {
+  if (!app) {
     navigate("/convert", { replace: true });
     return null;
   }
@@ -52,21 +68,59 @@ export function ConvertStatusPage() {
       </CardHeader>
       <CardContent className="space-y-4">
         <dl>
-          <DetailRow label="신청일">{app.submittedAt.slice(0, 10)}</DetailRow>
-          <Separator />
-          <DetailRow label="희망 트랙">{app.track}</DetailRow>
+          <DetailRow label="신청일">{formatDate(app.submittedAt)}</DetailRow>
           <Separator />
           <DetailRow label="상태">
-            <Badge variant={app.status === "approved" ? "default" : "outline"}>
-              {app.status === "pending_payment" ? "심사 중" : app.status === "approved" ? "승인" : app.status}
+            <Badge variant={applicationStatusVariant(app.status)}>
+              {applicationStatusLabel(app.status)}
             </Badge>
           </DetailRow>
         </dl>
 
-        {app.status === "pending_payment" && (
-          <p className="text-center text-sm text-muted-foreground">
-            심사가 진행 중입니다. 잠시만 기다려주세요.
-          </p>
+        {app.answers.length > 0 && (
+          <>
+            <Separator />
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-muted-foreground">제출한 답변</h3>
+              {app.answers.map((answer) => (
+                <div key={answer.id} className="rounded-lg border p-3">
+                  <p className="text-xs text-muted-foreground">질문 ID: {answer.questionId}</p>
+                  <p className="text-sm">{answer.value}</p>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {app.status !== "approved" && app.status !== "cancelled" && (
+          <AlertDialog>
+            <AlertDialogTrigger className="inline-flex h-9 w-full items-center justify-center rounded-md border border-input bg-transparent px-4 text-sm shadow-xs hover:bg-accent/50">
+              전환 취소
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>전환 신청을 취소하시겠습니까?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  취소 후에는 다시 신청할 수 있습니다.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>돌아가기</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => {
+                    cancelMutation.mutate(app.id, {
+                      onSuccess: () => {
+                        toast.success("전환 신청이 취소되었습니다.");
+                        navigate("/convert");
+                      },
+                    });
+                  }}
+                >
+                  취소하기
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         )}
 
         {app.status === "approved" && (

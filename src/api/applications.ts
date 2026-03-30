@@ -1,135 +1,112 @@
 import { gql } from "graphql-request";
 import { gqlClient } from "./graphql-client";
-import type {
-  FormTemplate,
-  MyApplication,
-  RecruitmentPeriod,
-  ApplicationSubmission,
-  ApplicationListItem,
-} from "@/types/application";
-import type { PagedResponse } from "@/types/common";
+import type { Form, Application, SubmitInput } from "@/types/application";
 
-const MY_APPLICATION_QUERY = gql`
-  query MyApplication {
-    myApplication {
-      id status formTemplateId track submittedAt
-      answers { questionId value }
-      paymentInfo { bank account amount holder }
+const FORM_QUERY = gql`
+  query Form($id: ID!) {
+    form(id: $id) {
+      id title description recruitmentId type isActive createdBy createdAt updatedAt
+      questions { id label type options required sortOrder }
     }
   }
 `;
 
-const FORM_TEMPLATE_QUERY = gql`
-  query FormTemplate($type: String!) {
-    formTemplate(type: $type) {
-      id type updatedAt
-      questions { id type label required options order }
+const FORMS_QUERY = gql`
+  query Forms($recruitmentId: String!) {
+    forms(recruitmentId: $recruitmentId) {
+      id title description recruitmentId type isActive createdBy createdAt updatedAt
+      questions { id label type options required sortOrder }
     }
   }
 `;
 
-const RECRUITMENT_PERIOD_QUERY = gql`
-  query RecruitmentPeriod($type: String!) {
-    recruitmentPeriod(type: $type) {
-      id type startDate endDate isActive
+const MY_APPLICATIONS_QUERY = gql`
+  query MyApplications {
+    myApplications {
+      id formId memberId status submittedAt approvedAt approvedBy updatedAt
+      answers { id questionId value }
+    }
+  }
+`;
+
+const APPLICATIONS_QUERY = gql`
+  query Applications($formId: String!) {
+    applications(formId: $formId) {
+      id formId memberId status submittedAt approvedAt approvedBy updatedAt
+      answers { id questionId value }
+    }
+  }
+`;
+
+const APPLICATION_QUERY = gql`
+  query Application($id: ID!) {
+    application(id: $id) {
+      id formId memberId status submittedAt approvedAt approvedBy updatedAt
+      answers { id questionId value }
     }
   }
 `;
 
 const SUBMIT_APPLICATION = gql`
-  mutation SubmitApplication($input: ApplicationSubmissionInput!) {
-    submitApplication(input: $input) { id status }
+  mutation SubmitApplication($input: SubmitInput!) {
+    submitApplication(input: $input) {
+      id formId status submittedAt
+    }
+  }
+`;
+
+const APPROVE_APPLICATIONS = gql`
+  mutation ApproveApplications($ids: [ID!]!) {
+    approveApplications(ids: $ids) {
+      id status approvedAt
+    }
   }
 `;
 
 const CANCEL_APPLICATION = gql`
   mutation CancelApplication($id: ID!) {
-    cancelApplication(id: $id) { id status }
-  }
-`;
-
-const APPLICATIONS_QUERY = gql`
-  query Applications($filter: ApplicationFilterInput) {
-    applications(filter: $filter) {
-      items { id applicantName applicantEmail track status submittedAt }
-      total page size
+    cancelApplication(id: $id) {
+      id status
     }
   }
 `;
 
-const APPROVE_APPLICATION = gql`
-  mutation ApproveApplication($id: ID!) {
-    approveApplication(id: $id) { id status }
-  }
-`;
-
-const BATCH_APPROVE = gql`
-  mutation BatchApproveApplications($ids: [ID!]!) {
-    batchApproveApplications(ids: $ids) { count }
-  }
-`;
-
-export async function getMyApplication(): Promise<MyApplication | null> {
-  const data = await gqlClient.request<{ myApplication: MyApplication | null }>(
-    MY_APPLICATION_QUERY,
-  );
-  return data.myApplication;
+export async function getForm(id: string): Promise<Form> {
+  const data = await gqlClient.request<{ form: Form }>(FORM_QUERY, { id });
+  return data.form;
 }
 
-export async function getFormTemplate(type: string): Promise<FormTemplate> {
-  const data = await gqlClient.request<{ formTemplate: FormTemplate }>(
-    FORM_TEMPLATE_QUERY,
-    { type },
-  );
-  return data.formTemplate;
+export async function getForms(recruitmentId: string): Promise<Form[]> {
+  const data = await gqlClient.request<{ forms: Form[] }>(FORMS_QUERY, { recruitmentId });
+  return data.forms;
 }
 
-export async function getRecruitmentPeriod(type: string): Promise<RecruitmentPeriod | null> {
-  const data = await gqlClient.request<{ recruitmentPeriod: RecruitmentPeriod | null }>(
-    RECRUITMENT_PERIOD_QUERY,
-    { type },
-  );
-  return data.recruitmentPeriod;
+export async function getMyApplications(): Promise<Application[]> {
+  const data = await gqlClient.request<{ myApplications: Application[] }>(MY_APPLICATIONS_QUERY);
+  return data.myApplications;
 }
 
-export async function submitApplication(input: ApplicationSubmission): Promise<MyApplication> {
-  const data = await gqlClient.request<{ submitApplication: MyApplication }>(
-    SUBMIT_APPLICATION,
-    { input },
-  );
-  return data.submitApplication;
-}
-
-export async function cancelApplication(id: string): Promise<MyApplication> {
-  const data = await gqlClient.request<{ cancelApplication: MyApplication }>(
-    CANCEL_APPLICATION,
-    { id },
-  );
-  return data.cancelApplication;
-}
-
-export async function getApplications(
-  filter: Record<string, unknown>,
-): Promise<PagedResponse<ApplicationListItem>> {
-  const data = await gqlClient.request<{ applications: PagedResponse<ApplicationListItem> }>(
-    APPLICATIONS_QUERY,
-    { filter },
-  );
+export async function getApplications(formId: string): Promise<Application[]> {
+  const data = await gqlClient.request<{ applications: Application[] }>(APPLICATIONS_QUERY, { formId });
   return data.applications;
 }
 
-export async function approveApplication(id: string): Promise<MyApplication> {
-  const data = await gqlClient.request<{ approveApplication: MyApplication }>(
-    APPROVE_APPLICATION,
-    { id },
-  );
-  return data.approveApplication;
+export async function getApplication(id: string): Promise<Application> {
+  const data = await gqlClient.request<{ application: Application }>(APPLICATION_QUERY, { id });
+  return data.application;
 }
 
-export async function batchApproveApplications(ids: string[]): Promise<{ count: number }> {
-  const data = await gqlClient.request<{ batchApproveApplications: { count: number } }>(
-    BATCH_APPROVE,
-    { ids },
-  );
-  return data.batchApproveApplications;
+export async function submitApplication(input: SubmitInput): Promise<Application> {
+  const data = await gqlClient.request<{ submitApplication: Application }>(SUBMIT_APPLICATION, { input });
+  return data.submitApplication;
+}
+
+export async function approveApplications(ids: string[]): Promise<Application[]> {
+  const data = await gqlClient.request<{ approveApplications: Application[] }>(APPROVE_APPLICATIONS, { ids });
+  return data.approveApplications;
+}
+
+export async function cancelApplication(id: string): Promise<Application> {
+  const data = await gqlClient.request<{ cancelApplication: Application }>(CANCEL_APPLICATION, { id });
+  return data.cancelApplication;
 }

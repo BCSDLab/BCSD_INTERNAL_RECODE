@@ -9,19 +9,19 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { DetailRow } from "@/components/common/DetailRow";
-import { useApproveApplication } from "@/hooks/use-applications";
+import { useApproveApplications } from "@/hooks/use-applications";
 import { applicationStatusLabel, applicationStatusVariant, formatDate } from "@/lib/format";
 import { toast } from "sonner";
-import type { ApplicationListItem } from "@/types/application";
+import type { Application } from "@/types/application";
 
 interface ApplicationSheetProps {
-  application: ApplicationListItem | null;
+  application: Application | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 export function ApplicationSheet({ application, open, onOpenChange }: ApplicationSheetProps) {
-  const approveMutation = useApproveApplication();
+  const approveMutation = useApproveApplications();
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -30,18 +30,18 @@ export function ApplicationSheet({ application, open, onOpenChange }: Applicatio
           <>
             <SheetHeader>
               <div className="flex items-center gap-3">
-                <SheetTitle>{application.applicantName}</SheetTitle>
+                <SheetTitle>지원서 상세</SheetTitle>
                 <Badge variant={applicationStatusVariant(application.status)}>
                   {applicationStatusLabel(application.status)}
                 </Badge>
               </div>
-              <SheetDescription>{application.applicantEmail}</SheetDescription>
+              <SheetDescription>회원 ID: {application.memberId}</SheetDescription>
             </SheetHeader>
             <div className="px-4 pb-4">
               <dl>
-                <DetailRow label="이메일">{application.applicantEmail}</DetailRow>
+                <DetailRow label="폼 ID">{application.formId}</DetailRow>
                 <Separator />
-                <DetailRow label="희망 트랙">{application.track}</DetailRow>
+                <DetailRow label="회원 ID">{application.memberId}</DetailRow>
                 <Separator />
                 <DetailRow label="지원일">{formatDate(application.submittedAt)}</DetailRow>
                 <Separator />
@@ -52,13 +52,28 @@ export function ApplicationSheet({ application, open, onOpenChange }: Applicatio
                 </DetailRow>
               </dl>
 
+              {application.answers.length > 0 && (
+                <>
+                  <Separator className="my-4" />
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-medium text-muted-foreground">제출 답변</h3>
+                    {application.answers.map((answer) => (
+                      <div key={answer.id} className="rounded-lg border p-3">
+                        <p className="text-xs text-muted-foreground">질문 ID: {answer.questionId}</p>
+                        <p className="text-sm">{answer.value}</p>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+
               {application.status !== "approved" && application.status !== "cancelled" && (
                 <div className="mt-6">
                   <Button
                     className="w-full"
                     disabled={approveMutation.isPending}
                     onClick={() => {
-                      approveMutation.mutate(application.id, {
+                      approveMutation.mutate([application.id], {
                         onSuccess: () => {
                           toast.success("지원자가 승인되었습니다.");
                           onOpenChange(false);

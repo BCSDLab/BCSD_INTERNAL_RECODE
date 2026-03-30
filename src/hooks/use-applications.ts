@@ -1,33 +1,51 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  getMyApplication,
-  getFormTemplate,
-  getRecruitmentPeriod,
-  submitApplication,
-  cancelApplication,
+  getForm,
+  getForms,
+  getMyApplications,
   getApplications,
-  approveApplication,
-  batchApproveApplications,
+  getApplication,
+  submitApplication,
+  approveApplications,
+  cancelApplication,
 } from "@/api/applications";
 
-export function useMyApplication() {
+export function useForm(id: string) {
   return useQuery({
-    queryKey: ["myApplication"],
-    queryFn: getMyApplication,
+    queryKey: ["form", id],
+    queryFn: () => getForm(id),
+    enabled: !!id,
   });
 }
 
-export function useFormTemplate(type: "beginner" | "conversion") {
+export function useForms(recruitmentId: string) {
   return useQuery({
-    queryKey: ["formTemplate", type],
-    queryFn: () => getFormTemplate(type),
+    queryKey: ["forms", recruitmentId],
+    queryFn: () => getForms(recruitmentId),
+    enabled: !!recruitmentId,
   });
 }
 
-export function useRecruitmentPeriod(type: "beginner" | "conversion") {
+export function useMyApplications() {
   return useQuery({
-    queryKey: ["recruitmentPeriod", type],
-    queryFn: () => getRecruitmentPeriod(type),
+    queryKey: ["myApplications"],
+    queryFn: getMyApplications,
+  });
+}
+
+export function useApplications(formId: string) {
+  return useQuery({
+    queryKey: ["applications", formId],
+    queryFn: () => getApplications(formId),
+    enabled: !!formId,
+  });
+}
+
+export function useApplication(id: string) {
+  return useQuery({
+    queryKey: ["application", id],
+    queryFn: () => getApplication(id),
+    enabled: !!id,
   });
 }
 
@@ -36,7 +54,17 @@ export function useSubmitApplication() {
   return useMutation({
     mutationFn: submitApplication,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["myApplication"] });
+      queryClient.invalidateQueries({ queryKey: ["myApplications"] });
+    },
+  });
+}
+
+export function useApproveApplications() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: approveApplications,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["applications"] });
     },
   });
 }
@@ -46,34 +74,7 @@ export function useCancelApplication() {
   return useMutation({
     mutationFn: cancelApplication,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["myApplication"] });
-    },
-  });
-}
-
-export function useApplications(filter: Record<string, unknown>) {
-  return useQuery({
-    queryKey: ["applications", filter],
-    queryFn: () => getApplications(filter),
-  });
-}
-
-export function useApproveApplication() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: approveApplication,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["applications"] });
-    },
-  });
-}
-
-export function useBatchApproveApplications() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: batchApproveApplications,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["applications"] });
+      queryClient.invalidateQueries({ queryKey: ["myApplications"] });
     },
   });
 }
