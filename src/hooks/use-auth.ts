@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import {
   postLogin,
   postVerifyEmail,
@@ -8,6 +9,7 @@ import {
   getMe,
   postLogout,
 } from "@/api/auth";
+import type { ApiError } from "@/types/common";
 
 export function useMe() {
   return useQuery({
@@ -48,6 +50,13 @@ export function useRegister() {
     mutationFn: postRegister,
     onSuccess: () => {
       navigate("/members");
+    },
+    onError: (error) => {
+      const apiError = error as unknown as ApiError;
+      if (apiError.message?.includes("already registered")) {
+        toast.error("이미 가입된 계정입니다.");
+        navigate("/login");
+      }
     },
   });
 }

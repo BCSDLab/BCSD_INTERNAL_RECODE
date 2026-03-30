@@ -1,11 +1,13 @@
 import { useReducer } from "react";
 import { useLocation, Link } from "react-router-dom";
+import { TriangleAlert } from "lucide-react";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Stepper } from "@/components/common/Stepper";
 import { GoogleStep } from "./steps/GoogleStep";
 import { ProfileStep } from "./steps/ProfileStep";
@@ -101,6 +103,15 @@ export function RegisterPage() {
 
   return (
     <Card className="w-full max-w-md">
+      <div className="px-6 pt-6">
+        <Alert className="border-amber-500/50 text-amber-700 [&>svg]:text-amber-600">
+          <TriangleAlert className="h-4 w-4" />
+          <AlertDescription>
+            BCSD에서 계속 사용할 Google 계정으로 가입해주세요.
+            다른 계정으로 가입하면 나중에 변경이 어렵습니다.
+          </AlertDescription>
+        </Alert>
+      </div>
       <CardHeader>
         <Stepper steps={STEPS} currentStep={state.step} />
       </CardHeader>

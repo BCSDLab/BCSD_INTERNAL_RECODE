@@ -1,5 +1,5 @@
 import { GoogleLogin } from "@react-oauth/google";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import {
   Card,
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useLogin } from "@/hooks/use-auth";
+import { toast } from "sonner";
 import type { ApiError } from "@/types/common";
 
 export function LoginPage() {
@@ -26,6 +27,8 @@ export function LoginPage() {
         onError: (error) => {
           const apiError = error as unknown as ApiError;
           if (apiError.message?.includes("registration required")) {
+            login.reset();
+            toast.info("가입이 필요합니다. 회원가입 페이지로 이동합니다.");
             navigate("/register", {
               state: { googleToken: credentialResponse.credential },
             });
@@ -65,6 +68,14 @@ export function LoginPage() {
           </Alert>
         </CardFooter>
       )}
+      <CardFooter className="justify-center">
+        <Link
+          to="/register"
+          className="text-sm text-muted-foreground hover:underline"
+        >
+          처음이신가요? 회원가입
+        </Link>
+      </CardFooter>
     </Card>
   );
 }
