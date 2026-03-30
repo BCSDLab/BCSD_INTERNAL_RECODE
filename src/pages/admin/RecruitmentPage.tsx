@@ -111,7 +111,7 @@ function RecruitmentCardContent({ period, label, description }: {
 
 export function RecruitmentPage() {
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-lg space-y-6">
       <h1 className="text-2xl font-semibold">모집 기간 관리</h1>
 
       <RecruitmentCard
