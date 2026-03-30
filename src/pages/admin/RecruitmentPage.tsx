@@ -111,8 +111,10 @@ function RecruitmentCardContent({ period, label, description }: {
 
 export function RecruitmentPage() {
   return (
-    <div className="mx-auto max-w-lg space-y-6">
+    <div className="space-y-6">
       <h1 className="text-2xl font-semibold">모집 기간 관리</h1>
+
+      <div className="mx-auto max-w-lg space-y-6">
 
       <RecruitmentCard
         type="beginner"
@@ -129,6 +131,7 @@ export function RecruitmentPage() {
           <CardDescription>즉시 전환 신청은 모집 기간 제한 없이 상시 가능합니다.</CardDescription>
         </CardHeader>
       </Card>
+      </div>
     </div>
   );
 }
