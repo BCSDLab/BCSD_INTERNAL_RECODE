@@ -48,9 +48,6 @@ export function useRegister() {
 
   return useMutation({
     mutationFn: postRegister,
-    onSuccess: () => {
-      navigate("/members");
-    },
     onError: (error) => {
       const apiError = error as unknown as ApiError;
       if (apiError.message?.includes("already registered")) {

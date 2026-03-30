@@ -4,6 +4,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { LoginPage } from "@/pages/login/LoginPage";
 import { RegisterPage } from "@/pages/register/RegisterPage";
+import { PostRegisterPage } from "@/pages/register/PostRegisterPage";
 import { MembersPage } from "@/pages/members/MembersPage";
 import { MemberDetailPage } from "@/pages/members/MemberDetailPage";
 import { LinksPage } from "@/pages/links/LinksPage";
@@ -18,6 +19,7 @@ export default function App() {
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/post-register" element={<PostRegisterPage />} />
         </Route>
         <Route element={<AppLayout />}>
           <Route element={<ProtectedRoute />}>

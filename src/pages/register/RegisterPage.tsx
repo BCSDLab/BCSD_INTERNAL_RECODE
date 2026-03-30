@@ -1,5 +1,5 @@
 import { useReducer } from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import { TriangleAlert } from "lucide-react";
 import {
   Card,
@@ -89,19 +89,25 @@ export function RegisterPage() {
   });
 
   const register = useRegister();
+  const navigate = useNavigate();
 
-  const handleTrackComplete = (track: string) => {
+  const handleTrackComplete = async (track: string) => {
     dispatch({ type: "SET_TRACK", track });
-    register.mutate({
-      google_token: state.googleToken,
-      name: state.name,
-      department: state.department,
-      student_id: state.studentId,
-      school_email: state.schoolEmail,
-      phone: state.phone,
-      track,
-      grade: state.grade,
-    });
+    try {
+      await register.mutateAsync({
+        google_token: state.googleToken,
+        name: state.name,
+        department: state.department,
+        student_id: state.studentId,
+        school_email: state.schoolEmail,
+        phone: state.phone,
+        track,
+        grade: state.grade,
+      });
+      navigate("/post-register", { state: { grade: state.grade } });
+    } catch {
+      // onError in useRegister handles "already registered"
+    }
   };
 
   return (
