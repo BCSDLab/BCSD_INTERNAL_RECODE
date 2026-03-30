@@ -12,6 +12,7 @@ import { QrPage } from "@/pages/qr/QrPage";
 import { ExpiredPage } from "@/pages/expired/ExpiredPage";
 import { ApplyLayout } from "@/components/layout/ApplyLayout";
 import { ApplyPage } from "@/pages/apply/ApplyPage";
+import { ApplyStatusPage } from "@/pages/apply/ApplyStatusPage";
 import { Toaster } from "@/components/ui/sonner";
 
 export default function App() {
@@ -34,6 +35,7 @@ export default function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<ApplyLayout />}>
             <Route path="/apply" element={<ApplyPage />} />
+            <Route path="/apply/status" element={<ApplyStatusPage />} />
           </Route>
         </Route>
         <Route path="/expired" element={<ExpiredPage />} />
