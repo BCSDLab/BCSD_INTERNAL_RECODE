@@ -40,6 +40,7 @@ export interface RegisterRequest {
   school_email: string;
   phone: string;
   track: string;
+  grade: string;
 }
 
 export interface MessageResponse {

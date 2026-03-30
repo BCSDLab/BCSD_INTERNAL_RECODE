@@ -25,13 +25,14 @@ interface WizardState {
   department: string;
   studentId: string;
   phone: string;
+  grade: string;
   schoolEmail: string;
   track: string;
 }
 
 type WizardAction =
   | { type: "SET_GOOGLE"; googleToken: string; googleName: string }
-  | { type: "SET_PROFILE"; name: string; department: string; studentId: string; phone: string }
+  | { type: "SET_PROFILE"; name: string; department: string; studentId: string; phone: string; grade: string }
   | { type: "SET_EMAIL"; schoolEmail: string }
   | { type: "SET_TRACK"; track: string }
   | { type: "GO_BACK" };
@@ -57,7 +58,7 @@ function reducer(state: WizardState, action: WizardAction): WizardState {
         googleName: action.googleName,
       };
     case "SET_PROFILE":
-      return { ...state, step: 3, name: action.name, department: action.department, studentId: action.studentId, phone: action.phone };
+      return { ...state, step: 3, name: action.name, department: action.department, studentId: action.studentId, phone: action.phone, grade: action.grade };
     case "SET_EMAIL":
       return { ...state, step: 4, schoolEmail: action.schoolEmail };
     case "SET_TRACK":
@@ -82,6 +83,7 @@ export function RegisterPage() {
     department: "",
     studentId: "",
     phone: "",
+    grade: "",
     schoolEmail: "",
     track: "",
   });
@@ -98,6 +100,7 @@ export function RegisterPage() {
       school_email: state.schoolEmail,
       phone: state.phone,
       track,
+      grade: state.grade,
     });
   };
 
@@ -131,8 +134,8 @@ export function RegisterPage() {
           <ProfileStep
             defaultName={state.name || state.googleName}
             onBack={() => dispatch({ type: "GO_BACK" })}
-            onComplete={(name, department, studentId, phone) =>
-              dispatch({ type: "SET_PROFILE", name, department, studentId, phone })
+            onComplete={(name, department, studentId, phone, grade) =>
+              dispatch({ type: "SET_PROFILE", name, department, studentId, phone, grade })
             }
           />
         )}

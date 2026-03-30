@@ -3,11 +3,19 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { GRADE_OPTIONS } from "@/lib/grade";
 
 interface ProfileStepProps {
   defaultName: string;
   onBack: () => void;
-  onComplete: (name: string, department: string, studentId: string, phone: string) => void;
+  onComplete: (name: string, department: string, studentId: string, phone: string, grade: string) => void;
 }
 
 function formatPhone(value: string): string {
@@ -21,6 +29,7 @@ export function ProfileStep({ defaultName, onBack, onComplete }: ProfileStepProp
   const [department, setDepartment] = useState("");
   const [studentId, setStudentId] = useState("");
   const [phone, setPhone] = useState("");
+  const [grade, setGrade] = useState("");
 
   return (
     <div className="space-y-4">
@@ -64,10 +73,23 @@ export function ProfileStep({ defaultName, onBack, onComplete }: ProfileStepProp
           onChange={(e) => setPhone(formatPhone(e.target.value))}
         />
       </div>
+      <div className="space-y-2">
+        <Label>학년</Label>
+        <Select value={grade} onValueChange={(v) => setGrade(v ?? "")}>
+          <SelectTrigger>
+            <SelectValue placeholder="학년 선택" />
+          </SelectTrigger>
+          <SelectContent>
+            {GRADE_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
       <Button
         className="w-full"
-        onClick={() => onComplete(name, department, studentId, phone)}
-        disabled={!name.trim() || !department.trim() || !studentId.trim() || phone.replace(/\D/g, "").length < 7}
+        onClick={() => onComplete(name, department, studentId, phone, grade)}
+        disabled={!name.trim() || !department.trim() || !studentId.trim() || phone.replace(/\D/g, "").length < 7 || !grade}
       >
         다음
       </Button>
