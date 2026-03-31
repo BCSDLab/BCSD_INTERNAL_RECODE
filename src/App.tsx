@@ -26,7 +26,9 @@ export default function App() {
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/post-register" element={<PostRegisterPage />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/post-register" element={<PostRegisterPage />} />
+          </Route>
         </Route>
         <Route element={<AppLayout />}>
           <Route element={<ProtectedRoute />}>
