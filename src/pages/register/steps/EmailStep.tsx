@@ -7,12 +7,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useVerifyEmail, useConfirmEmail } from "@/hooks/use-auth";
 
 interface EmailStepProps {
+  defaultEmail?: string;
   onBack: () => void;
   onComplete: (schoolEmail: string) => void;
 }
 
-export function EmailStep({ onBack, onComplete }: EmailStepProps) {
-  const [email, setEmail] = useState("");
+export function EmailStep({ defaultEmail, onBack, onComplete }: EmailStepProps) {
+  const [email, setEmail] = useState(defaultEmail ?? "");
   const [code, setCode] = useState("");
   const [codeSent, setCodeSent] = useState(false);
 

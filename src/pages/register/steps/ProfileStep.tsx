@@ -14,6 +14,10 @@ import { GRADE_OPTIONS } from "@/lib/grade";
 
 interface ProfileStepProps {
   defaultName: string;
+  defaultDepartment?: string;
+  defaultStudentId?: string;
+  defaultPhone?: string;
+  defaultGrade?: string;
   onBack: () => void;
   onComplete: (name: string, department: string, studentId: string, phone: string, grade: string) => void;
 }
@@ -24,12 +28,12 @@ function formatPhone(value: string): string {
   return digits.replace(/(\d)(?=(\d{4})+$)/g, "$1-");
 }
 
-export function ProfileStep({ defaultName, onBack, onComplete }: ProfileStepProps) {
+export function ProfileStep({ defaultName, defaultDepartment, defaultStudentId, defaultPhone, defaultGrade, onBack, onComplete }: ProfileStepProps) {
   const [name, setName] = useState(defaultName);
-  const [department, setDepartment] = useState("");
-  const [studentId, setStudentId] = useState("");
-  const [phone, setPhone] = useState("");
-  const [grade, setGrade] = useState("");
+  const [department, setDepartment] = useState(defaultDepartment ?? "");
+  const [studentId, setStudentId] = useState(defaultStudentId ?? "");
+  const [phone, setPhone] = useState(defaultPhone ?? "");
+  const [grade, setGrade] = useState(defaultGrade ?? "");
 
   return (
     <div className="space-y-4">

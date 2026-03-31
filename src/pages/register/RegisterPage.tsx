@@ -132,6 +132,10 @@ export function RegisterPage() {
         {state.step === 2 && (
           <ProfileStep
             defaultName={state.name || state.googleName}
+            defaultDepartment={state.department}
+            defaultStudentId={state.studentId}
+            defaultPhone={state.phone}
+            defaultGrade={state.grade}
             onBack={() => dispatch({ type: "GO_BACK" })}
             onComplete={(name, department, studentId, phone, grade) =>
               dispatch({ type: "SET_PROFILE", name, department, studentId, phone, grade })
@@ -140,6 +144,7 @@ export function RegisterPage() {
         )}
         {state.step === 3 && (
           <EmailStep
+            defaultEmail={state.schoolEmail}
             onBack={() => dispatch({ type: "GO_BACK" })}
             onComplete={handleEmailComplete}
           />
