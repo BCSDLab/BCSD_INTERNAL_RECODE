@@ -85,6 +85,9 @@ export function RegisterPage() {
 
   const register = useRegister();
 
+  // 새로고침 시 googleToken이 날아가면 1단계로 리셋
+  const currentStep = state.step > 1 && !state.googleToken ? 1 : state.step;
+
   const handleEmailComplete = async (email: string) => {
     dispatch({ type: "SET_EMAIL", schoolEmail: email });
     try {
@@ -115,10 +118,10 @@ export function RegisterPage() {
         </Alert>
       </div>
       <CardHeader>
-        <Stepper steps={STEPS} currentStep={state.step} />
+        <Stepper steps={STEPS} currentStep={currentStep} />
       </CardHeader>
       <CardContent>
-        {state.step === 1 && (
+        {currentStep === 1 && (
           <GoogleStep
             onComplete={(token) =>
               dispatch({
@@ -129,7 +132,7 @@ export function RegisterPage() {
             }
           />
         )}
-        {state.step === 2 && (
+        {currentStep === 2 && (
           <ProfileStep
             defaultName={state.name || state.googleName}
             defaultDepartment={state.department}
@@ -142,7 +145,7 @@ export function RegisterPage() {
             }
           />
         )}
-        {state.step === 3 && (
+        {currentStep === 3 && (
           <EmailStep
             defaultEmail={state.schoolEmail}
             onBack={() => dispatch({ type: "GO_BACK" })}
