@@ -81,7 +81,9 @@ export function ProfileStep({ defaultName, defaultDepartment, defaultStudentId, 
         <Label>학년</Label>
         <Select value={grade} onValueChange={(v) => setGrade(v ?? "")}>
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="학년 선택" />
+            <SelectValue placeholder="학년 선택">
+              {GRADE_OPTIONS.find((o) => o.value === grade)?.label ?? "학년 선택"}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {GRADE_OPTIONS.map((opt) => (
