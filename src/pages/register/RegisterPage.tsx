@@ -12,10 +12,9 @@ import { Stepper } from "@/components/common/Stepper";
 import { GoogleStep } from "./steps/GoogleStep";
 import { ProfileStep } from "./steps/ProfileStep";
 import { EmailStep } from "./steps/EmailStep";
-import { TrackStep } from "./steps/TrackStep";
 import { useRegister } from "@/hooks/use-auth";
 
-const STEPS = ["Google 인증", "정보 입력", "이메일 인증", "트랙 선택"];
+const STEPS = ["Google 인증", "정보 입력", "이메일 인증"];
 
 interface WizardState {
   step: number;
@@ -27,14 +26,12 @@ interface WizardState {
   phone: string;
   grade: string;
   schoolEmail: string;
-  track: string;
 }
 
 type WizardAction =
   | { type: "SET_GOOGLE"; googleToken: string; googleName: string }
   | { type: "SET_PROFILE"; name: string; department: string; studentId: string; phone: string; grade: string }
   | { type: "SET_EMAIL"; schoolEmail: string }
-  | { type: "SET_TRACK"; track: string }
   | { type: "GO_BACK" };
 
 function decodeGoogleName(token: string): string {
@@ -60,9 +57,7 @@ function reducer(state: WizardState, action: WizardAction): WizardState {
     case "SET_PROFILE":
       return { ...state, step: 3, name: action.name, department: action.department, studentId: action.studentId, phone: action.phone, grade: action.grade };
     case "SET_EMAIL":
-      return { ...state, step: 4, schoolEmail: action.schoolEmail };
-    case "SET_TRACK":
-      return { ...state, track: action.track };
+      return { ...state, schoolEmail: action.schoolEmail };
     case "GO_BACK":
       return { ...state, step: Math.max(1, state.step - 1) };
   }
@@ -70,6 +65,7 @@ function reducer(state: WizardState, action: WizardAction): WizardState {
 
 export function RegisterPage() {
   const location = useLocation();
+  const navigate = useNavigate();
   const initialGoogleToken =
     (location.state as { googleToken?: string })?.googleToken ?? "";
 
@@ -85,23 +81,20 @@ export function RegisterPage() {
     phone: "",
     grade: "",
     schoolEmail: "",
-    track: "",
   });
 
   const register = useRegister();
-  const navigate = useNavigate();
 
-  const handleTrackComplete = async (track: string) => {
-    dispatch({ type: "SET_TRACK", track });
+  const handleEmailComplete = async (email: string) => {
+    dispatch({ type: "SET_EMAIL", schoolEmail: email });
     try {
       await register.mutateAsync({
         google_token: state.googleToken,
         name: state.name,
         department: state.department,
         student_id: state.studentId,
-        school_email: state.schoolEmail,
+        school_email: email,
         phone: state.phone,
-        track,
         grade: state.grade,
       });
       navigate("/post-register", { state: { grade: state.grade } });
@@ -148,16 +141,7 @@ export function RegisterPage() {
         {state.step === 3 && (
           <EmailStep
             onBack={() => dispatch({ type: "GO_BACK" })}
-            onComplete={(email) =>
-              dispatch({ type: "SET_EMAIL", schoolEmail: email })
-            }
-          />
-        )}
-        {state.step === 4 && (
-          <TrackStep
-            onBack={() => dispatch({ type: "GO_BACK" })}
-            onComplete={handleTrackComplete}
-            isPending={register.isPending}
+            onComplete={handleEmailComplete}
           />
         )}
       </CardContent>

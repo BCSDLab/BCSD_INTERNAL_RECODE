@@ -76,7 +76,7 @@ export function ProfileStep({ defaultName, onBack, onComplete }: ProfileStepProp
       <div className="space-y-2">
         <Label>학년</Label>
         <Select value={grade} onValueChange={(v) => setGrade(v ?? "")}>
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="학년 선택" />
           </SelectTrigger>
           <SelectContent>

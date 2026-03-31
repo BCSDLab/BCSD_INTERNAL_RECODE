@@ -39,7 +39,7 @@ export interface RegisterRequest {
   student_id: string;
   school_email: string;
   phone: string;
-  track: string;
+  track?: string;
   grade: string;
 }
 
